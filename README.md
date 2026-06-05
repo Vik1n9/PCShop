@@ -1,31 +1,39 @@
 # PCShop 線上估價單
 
-手機優先的電腦組裝估價單前端雛形。現階段以前端靜態頁面載入 CSV 資料，先完成零件挑選、相容性提示、進度總覽與估價單儲存流程，之後可將 `data/products.csv` 的資料入口替換為正式 API。
+手機優先的電腦組裝估價單前端雛形。現階段以前端靜態頁面載入 CSV 資料，先完成零件挑選、相容性提示、進度總覽與估價單儲存流程，之後可將 `data/products.csv` 的資料入口替換為正式 API。介面美術與互動依《[規格書](規格書.txt)》與 [`PRODUCT.md`](PRODUCT.md) 設計，定調為「沉穩、精準、守護」的新手友善風格。
 
 ## 線上測試（GitHub Pages）
 
-部署完成後，直接用瀏覽器開啟以下網址即可測試，免下載、免本機伺服器：
+直接用瀏覽器開啟以下網址即可測試，免下載、免本機伺服器：
 
 👉 **https://vik1n9.github.io/PCShop/**
 
-本倉庫已內建自動部署流程（`.github/workflows/pages.yml`），每次推送到 `main` 分支就會自動把整個靜態站台發佈到 GitHub Pages。**首次需要做一次性設定才會啟用：**
+本倉庫已啟用 GitHub Pages（來源為 **GitHub Actions**），並內建自動部署流程（`.github/workflows/pages.yml`）：每次推送到 `main` 分支，就會自動把整個靜態站台重新發佈到上述網址。也可在 **Actions → Deploy to GitHub Pages** 手動觸發，或從該工作流程的 `github-pages` 環境連結直接進站。
 
-1. 進入 GitHub 倉庫的 **Settings → Pages**。
-2. 在 **Build and deployment → Source** 選擇 **GitHub Actions**。
-3. 把本分支的變更合併進 `main`（或在 **Actions** 分頁手動執行 `Deploy to GitHub Pages`）。
-4. 部署成功後，上方網址即可開啟；也可以在 **Actions → Deploy to GitHub Pages** 工作流程的 `github-pages` 環境連結直接點進站台。
-
-> 注意：本倉庫目前為 **private**。若要讓上述網址公開可被任何人開啟，需將倉庫設為 public，或使用支援私有 Pages 的付費方案（GitHub Pro / Team / Enterprise）。在 public 倉庫下，GitHub Pages 為免費功能。
+> 此網址為公開可存取；倉庫設為 private 時，公開 Pages 需要 GitHub Pro / Team / Enterprise 方案。
 
 ## 目前功能
 
 - 零件分類切換：處理器、主機板、記憶體、顯示卡、儲存裝置、機殼、電源供應器、散熱器與其他零件。
 - CSV 資料載入與瀏覽器端解析。
 - 依已選零件進行相容性過濾。
-- 不相容品項可用「顯示全部」查看，但加入按鈕會停用。
-- 產品卡片展開、完整介紹對話框、重點規格與完整規格表。
+- 不相容品項可用「顯示全部」查看，會以灰階標示、加上「不相容」角標並停用加入按鈕。
+- 產品卡片原地展開、完整介紹對話框、重點規格與完整規格表。
 - 組裝進度、總價、軟警告、估價單儲存、載入、刪除、複製與列印。
-- 手機單欄與桌面雙欄版面。
+- 硬衝突、軟警告、成功提示以語意色與圖示呈現，並用頂部浮出 toast 通知。
+- 手機單欄與桌面雙欄（總覽 40% / 挑選 60%）版面。
+
+## 介面設計
+
+美術與排版依《規格書》第六章「行動優先互動設計」與 `PRODUCT.md` 的品牌個性重做，重點原則：
+
+- **沉穩 / 精準 / 守護**：沉穩靛藍品牌色、青藍輔助色（代表「相容 / 通過」）、冷調中性灰與完整語意色。
+- **漸進式資訊揭露**：先看名稱、價格、關鍵規格；細節透過點擊原地展開或全螢幕覆蓋層揭示。
+- **清楚的狀態語意**：已選 / 展開 / 不相容 / 軟警告各有明確視覺與文字。
+- **行動優先、拇指友善**：底部導覽、可滑動類別膠囊、全螢幕由下滑入的完整介紹。
+- **無障礙**：顧及 WCAG AA 對比、可見 focus 樣式，並支援 `prefers-reduced-motion` 減動偏好。
+
+所有樣式集中於 `styles.css`，並以 `:root` 的 CSS 變數（design tokens）統一管理色彩、圓角、陰影與間距。
 
 ## 本機預覽
 
@@ -52,3 +60,4 @@ http://localhost:4173/
 - 若後端 API 完成，優先替換 `script.js` 內的 `DATA_URL` 與 `fetchProducts()`。
 - 若商品欄位增加，請同步更新 `data/products.csv` 與 `normalizeProduct()`。
 - 相容性規則目前在前端 `checkBuild()`，正式版建議移至後端 API，前端只負責呈現 API 回傳的 hard conflict 與 soft warning。
+- 調整外觀時優先修改 `styles.css` `:root` 的 CSS 變數，可一次套用全站色彩與間距；`script.js` 產生的 class 名稱與 DOM 結構即為樣式對應的接點，盡量沿用以免破壞既有樣式。
