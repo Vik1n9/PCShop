@@ -1,0 +1,60 @@
+
+| 種類 | 品名 | 數量 | 價格 | TAG |
+| :--- | :--- | :--- | :--- | :--- |
+| 處理器 | AMD Ryzen 5 5600X | 15 | $180 | `Socket AM4`; `TDP 65W`; `6C12T`; `DDR4-3200` |
+| 處理器 | AMD Ryzen 7 7800X3D | 20 | $449 | `Socket AM5`; `TDP 120W`; `8C16T`; `3D V-Cache`; `DDR5` |
+| 處理器 | Intel Core i5-13400F | 25 | $200 | `LGA1700`; `TDP 65W`; `10C16T`; `DDR4/DDR5` |
+| 處理器 | Intel Core i7-13700K | 12 | $370 | `LGA1700`; `TDP 125W`; `16C24T`; `iGPU` |
+| 處理器 | Intel Core i9-13900K | 10 | $580 | `LGA1700`; `TDP 125W`; `24C32T`; `Max TDP 253W` |
+| 處理器 | AMD Ryzen 9 7950X | 8 | $700 | `Socket AM5`; `TDP 170W`; `16C32T`; `DDR5` |
+| 主機板 | ASUS ROG STRIX B550-F | 14 | $189 | `Socket AM4`; `ATX`; `DDR4`; `PCIe 4.0`; `Ryzen 5000` |
+| 主機板 | MSI MAG B760M MORTAR | 22 | $159 | `LGA1700`; `microATX`; `DDR5`; `PCIe 5.0` |
+| 主機板 | Gigabyte Z790 AORUS ELITE | 10 | $299 | `LGA1700`; `ATX`; `DDR5`; `PCIe 5.0`; `12/13/14th Gen` |
+| 主機板 | ASRock X670E Taichi | 7 | $499 | `Socket AM5`; `E-ATX`; `DDR5`; `PCIe 5.0 GPU+SSD` |
+| 主機板 | ASUS Prime H610M-A | 30 | $99 | `LGA1700`; `microATX`; `DDR4`; `PCIe 3.0` |
+| 主機板 | Gigabyte B650 AORUS | 18 | $229 | `Socket AM5`; `ATX`; `DDR5`; `PCIe 5.0 M.2` |
+| 顯示卡 | NVIDIA RTX 3060 12GB | 16 | $280 | `Length 24cm`; `TDP 170W`; `PCIe 4.0`; `8-pin`; `Dual Fan` |
+| 顯示卡 | ASUS RTX 4070 Dual | 12 | $550 | `Length 26.7cm`; `TDP 200W`; `PCIe 4.0`; `12VHPWR`; `DLSS3` |
+| 顯示卡 | AMD Radeon RX 6800 XT | 9 | $500 | `Length 28cm`; `TDP 300W`; `PCIe 4.0`; `Dual 8-pin` |
+| 顯示卡 | MSI RTX 4090 SUPRIM | 5 | $1699 | `Length 33.6cm`; `TDP 450W`; `PCIe 4.0`; `16-pin` |
+| 顯示卡 | PowerColor RX 7900 XTX | 7 | $999 | `Length 32cm`; `TDP 355W`; `PCIe 4.0`; `Triple Fan` |
+| 顯示卡 | Zotac RTX 4060 Ti 8GB | 20 | $389 | `Length 22.5cm`; `TDP 160W`; `PCIe 4.0`; `8-pin` |
+| 記憶體 | Corsair Vengeance LPX 16GB (2x8) DDR4 3200MHz | 30 | $79 | `DDR4`; `Speed 3200MHz`; `CL16`; `1.35V`; `2x8GB` |
+| 記憶體 | G.Skill Trident Z5 RGB 32GB (2x16) DDR5 6000MHz | 15 | $149 | `DDR5`; `Speed 6000MHz`; `CL36`; `RGB`; `EXPO`; `2x16GB` |
+| 記憶體 | Kingston Fury Beast 32GB DDR4 3600MHz | 25 | $109 | `DDR4`; `Speed 3600MHz`; `CL18`; `1x32GB` |
+| 記憶體 | TEAMGROUP T-Force Vulcan 16GB (2x8) DDR5 5200MHz | 20 | $79 | `DDR5`; `Speed 5200MHz`; `CL40`; `2x8GB` |
+| 記憶體 | Crucial Pro 64GB (2x32) DDR5 5600MHz | 8 | $219 | `DDR5`; `Speed 5600MHz`; `CL46`; `2x32GB` |
+| 硬碟 | Samsung 980 Pro 1TB NVMe SSD | 25 | $99 | `M.2 2280`; `PCIe 4.0`; `Read 7000MB/s`; `TLC`; `1TB` |
+| 硬碟 | WD Blue SN570 500GB NVMe SSD | 40 | $45 | `M.2 2280`; `PCIe 3.0`; `Read 3500MB/s`; `500GB` |
+| 硬碟 | Seagate Barracuda 2TB 7200RPM HDD | 30 | $65 | `3.5-inch`; `SATA 6Gb/s`; `2TB`; `CMR` |
+| 硬碟 | Kingston KC3000 2TB NVMe SSD | 12 | $149 | `M.2 2280`; `PCIe 4.0`; `Read 7000MB/s`; `Heatsink`; `2TB` |
+| 硬碟 | Crucial MX500 1TB SATA SSD | 20 | $79 | `2.5-inch`; `SATA 6Gb/s`; `3D NAND`; `1TB` |
+| 散熱器 | Noctua NH-D15 | 10 | $109 | `Air Cooler`; `Dual Tower`; `Height 165mm`; `LGA1700/AM4/AM5`; `TDP 250W` |
+| 散熱器 | Cooler Master Hyper 212 Spectrum | 25 | $45 | `Air Cooler`; `Height 154mm`; `LGA1700/AM4`; `TDP 150W` |
+| 散熱器 | Arctic Liquid Freezer II 360 | 12 | $129 | `AIO`; `360mm Radiator`; `LGA1700/AM5`; `TDP 300W` |
+| 散熱器 | NZXT Kraken 240 RGB | 15 | $159 | `AIO`; `240mm Radiator`; `LGA1700/AM5`; `RGB Fans` |
+| 電源 | Corsair RM750e 750W 金牌 | 18 | $119 | `750W`; `80+ Gold`; `Full Modular`; `ATX 3.0`; `12VHPWR` |
+| 電源 | EVGA 550 GD 550W 金牌 | 20 | $79 | `550W`; `80+ Gold`; `Non-Modular`; `ATX12V` |
+| 電源 | Seasonic Focus Plus 850W 白金 | 10 | $169 | `850W`; `80+ Platinum`; `Full Modular`; `Silent` |
+| 電源 | Cooler Master MWE 1000W V2 | 8 | $199 | `1000W`; `80+ Gold`; `Semi-Modular`; `Dual CPU` |
+| 機殼 | Lian Li Lancool 216 | 12 | $99 | `ATX`; `Max GPU Length 39cm`; `Max Cooler Height 18cm`; `Pre-installed Fans`; `Type-C` |
+| 機殼 | Fractal Design Meshify C | 10 | $89 | `ATX/microATX`; `Max GPU Length 31.5cm`; `Max Cooler Height 17cm`; `Sound Dampening` |
+| 機殼 | Cooler Master NR200P | 15 | $79 | `Mini-ITX`; `Max GPU Length 33cm`; `Max Cooler Height 15.5cm`; `PCIe Riser` |
+| 機殼 | NZXT H9 Flow | 8 | $159 | `ATX`; `Dual Chamber`; `Max GPU Length 43.5cm`; `Max Cooler Height 16.5cm`; `360mm Rad Support` |
+| 機殼 | Phanteks Eclipse P300A | 20 | $69 | `ATX/microATX`; `Max GPU Length 35.5cm`; `Max Cooler Height 16.5cm`; `Mesh Front` |
+| 其他零件 | Noctua NT-H1 散熱膏 | 35 | $9 | `Thermal Paste`; `3.5g`; `Non-Conductive` |
+| 其他零件 | Asiahorse 風扇集線器 8埠 | 25 | $12 | `PWM Hub`; `8-port`; `SATA Power`; `4-pin Fans` |
+| 其他零件 | TP-Link Archer TX50E Wi-Fi 6 網卡 | 14 | $49 | `PCIe x1`; `Wi-Fi 6`; `Bluetooth 5.2`; `MU-MIMO` |
+| 其他零件 | CableMod PCIe 4.0 延長線 20cm | 10 | $39 | `PCIe 4.0 x16`; `Riser Cable`; `Length 20cm`; `Vertical GPU` |
+
+### 標籤定義說明（供網站開發參考）
+- **核心/線程**：`6C12T` = 6核心12線程
+- **功耗**：`TDP 65W` (處理器/顯卡通用)
+- **插槽**：`Socket AM4` 或 `LGA1700`
+- **尺寸**：`Length 24cm` (顯卡長度)、`Height 165mm` (散熱器高度)
+- **記憶體規格**：`DDR4`、`Speed 3200MHz`、`CL16`
+- **電源**：`80+ Gold`、`Full Modular`、`750W`
+- **機殼相容性**：`Max GPU Length 39cm`、`Max Cooler Height 18cm`
+- **介面**：`PCIe 4.0`、`SATA 6Gb/s`、`M.2 2280`
+
+所有標籤均使用 **英文縮寫與標準化詞彙**，網站可透過解析分號 `;` 分割標籤，並根據使用者選擇的條件（如處理器插槽、顯卡長度限制）進行智能篩選，避免不相容的搭配。

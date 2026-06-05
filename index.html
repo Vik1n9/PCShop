@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PCShop 線上估價單</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-view="picker">
+    <div class="app-frame">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="PCShop 線上估價單首頁">
+          <span class="brand-mark" aria-hidden="true">PC</span>
+          <span>
+            <strong>PCShop</strong>
+            <small>線上估價單</small>
+          </span>
+        </a>
+        <div class="topbar-actions">
+          <output id="topTotal" class="total-pill" aria-live="polite">$0</output>
+          <button class="icon-button" type="button" id="saveQuoteTop" aria-label="儲存估價單" title="儲存估價單">
+            <span aria-hidden="true">+</span>
+          </button>
+        </div>
+      </header>
+
+      <section class="progress-strip" aria-label="組裝進度">
+        <div class="progress-copy">
+          <span id="progressCount">已選 0/8</span>
+          <strong id="progressHint">先選擇處理器</strong>
+        </div>
+        <div class="progress-meter" aria-hidden="true">
+          <span id="progressFill"></span>
+        </div>
+        <div id="progressSteps" class="progress-steps"></div>
+      </section>
+
+      <div id="notice" class="notice" hidden></div>
+
+      <main class="app-shell">
+        <aside id="overviewPanel" class="overview-panel" aria-label="組裝進度總覽"></aside>
+        <section id="workspace" class="workspace" aria-label="挑選零件"></section>
+      </main>
+    </div>
+
+    <nav class="bottom-nav" aria-label="主要導覽">
+      <button type="button" data-view-target="overview" aria-label="組裝進度">
+        <span aria-hidden="true">▦</span>
+        <b>進度</b>
+      </button>
+      <button type="button" data-view-target="picker" aria-label="挑選零件">
+        <span aria-hidden="true">⌕</span>
+        <b>挑選</b>
+      </button>
+      <button type="button" data-view-target="saved" aria-label="我的估價單">
+        <span aria-hidden="true">□</span>
+        <b>估價單</b>
+      </button>
+    </nav>
+
+    <dialog id="productDialog" class="product-dialog" aria-label="產品完整介紹"></dialog>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>
