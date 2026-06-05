@@ -1,63 +1,11 @@
 /* =========================================================================
-   PCShop 線上估價單 — 視覺設計系統
+   PCShop 線上估價單 — 元件樣式 (Component Layer)
    設計語彙：沉穩、精準、守護（calm / precise / protective）
    行動優先、漸進式資訊揭露、清楚的狀態語意、WCAG AA 對比
+
+   Design tokens（色彩、字體、間距、圓角、陰影）定義於 `colors_and_type.css`，
+   並在 index.html 先於本檔載入。調整外觀請優先改該檔 :root 變數。
    ========================================================================= */
-
-:root {
-  color-scheme: light;
-
-  /* 中性色 —— 帶冷調的板岩灰，安靜不刺眼 */
-  --bg: oklch(0.985 0.004 256);
-  --bg-2: oklch(0.965 0.008 256);
-  --surface: oklch(1 0 0);
-  --surface-2: oklch(0.972 0.006 256);
-  --surface-3: oklch(0.95 0.011 256);
-  --ink: oklch(0.26 0.03 264);
-  --ink-soft: oklch(0.4 0.03 264);
-  --muted: oklch(0.54 0.025 264);
-  --line: oklch(0.905 0.012 264);
-  --line-strong: oklch(0.84 0.02 264);
-
-  /* 品牌色 —— 沉穩可信的靛藍，像一位安靜的店員 */
-  --brand: oklch(0.55 0.155 264);
-  --brand-strong: oklch(0.47 0.16 266);
-  --brand-ink: oklch(0.34 0.13 266);
-  --brand-tint: oklch(0.955 0.028 264);
-  --brand-tint-2: oklch(0.91 0.05 264);
-
-  /* 輔助色 —— 青藍，代表「相容 / 通過」 */
-  --accent: oklch(0.62 0.11 214);
-  --accent-tint: oklch(0.95 0.035 214);
-
-  /* 語意色 */
-  --success: oklch(0.57 0.13 158);
-  --success-ink: oklch(0.4 0.12 158);
-  --success-tint: oklch(0.95 0.05 158);
-  --warning: oklch(0.72 0.15 80);
-  --warning-ink: oklch(0.46 0.11 70);
-  --warning-tint: oklch(0.955 0.06 86);
-  --danger: oklch(0.57 0.2 25);
-  --danger-ink: oklch(0.45 0.17 26);
-  --danger-tint: oklch(0.955 0.045 25);
-
-  --radius: 14px;
-  --radius-sm: 10px;
-  --radius-lg: 20px;
-  --radius-pill: 999px;
-
-  --shadow-sm: 0 1px 2px oklch(0.3 0.04 264 / 0.05), 0 1px 3px oklch(0.3 0.04 264 / 0.05);
-  --shadow-md: 0 6px 16px oklch(0.3 0.04 264 / 0.08), 0 2px 5px oklch(0.3 0.04 264 / 0.05);
-  --shadow-lg: 0 18px 48px oklch(0.28 0.05 264 / 0.22);
-
-  --tap: 44px;
-  --topbar-h: 64px;
-  --strip-h: 112px; /* 進度條區概估高度，供桌面端 sticky 偏移使用 */
-
-  --font: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
-  font-family: var(--font);
-}
 
 * {
   box-sizing: border-box;
@@ -146,16 +94,11 @@ h1, h2, h3 {
 }
 
 .brand-mark {
-  display: grid;
-  place-items: center;
+  display: block;
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background: linear-gradient(150deg, var(--brand), var(--brand-strong));
-  box-shadow: 0 6px 14px oklch(0.47 0.16 266 / 0.35), inset 0 1px 0 oklch(1 0 0 / 0.3);
-  color: white;
-  font-size: 0.82rem;
-  font-weight: 850;
+  box-shadow: 0 6px 14px oklch(0.47 0.16 266 / 0.35);
 }
 
 .brand strong,
@@ -595,16 +538,16 @@ body[data-view="overview"] .workspace {
   backdrop-filter: blur(2px);
 }
 
-/* 產品色調 */
-.tone-amber { --art-a: oklch(0.8 0.13 78); --art-b: oklch(0.55 0.12 52); }
-.tone-blue { --art-a: oklch(0.68 0.12 234); --art-b: oklch(0.44 0.12 262); }
-.tone-violet { --art-a: oklch(0.66 0.14 296); --art-b: oklch(0.44 0.12 280); }
-.tone-green { --art-a: oklch(0.72 0.13 156); --art-b: oklch(0.5 0.1 178); }
-.tone-cyan { --art-a: oklch(0.75 0.12 210); --art-b: oklch(0.5 0.12 234); }
-.tone-red { --art-a: oklch(0.7 0.16 28); --art-b: oklch(0.52 0.14 14); }
-.tone-slate { --art-a: oklch(0.62 0.05 256); --art-b: oklch(0.38 0.04 262); }
-.tone-teal { --art-a: oklch(0.72 0.12 184); --art-b: oklch(0.46 0.09 200); }
-.tone-neutral { --art-a: oklch(0.72 0.03 256); --art-b: oklch(0.46 0.03 262); }
+/* 產品色調 —— 對應 colors_and_type.css 的 --tone-*-a/b 設計 token */
+.tone-amber { --art-a: var(--tone-amber-a); --art-b: var(--tone-amber-b); }
+.tone-blue { --art-a: var(--tone-blue-a); --art-b: var(--tone-blue-b); }
+.tone-violet { --art-a: var(--tone-violet-a); --art-b: var(--tone-violet-b); }
+.tone-green { --art-a: var(--tone-green-a); --art-b: var(--tone-green-b); }
+.tone-cyan { --art-a: var(--tone-cyan-a); --art-b: var(--tone-cyan-b); }
+.tone-red { --art-a: var(--tone-red-a); --art-b: var(--tone-red-b); }
+.tone-slate { --art-a: var(--tone-slate-a); --art-b: var(--tone-slate-b); }
+.tone-teal { --art-a: var(--tone-teal-a); --art-b: var(--tone-teal-b); }
+.tone-neutral { --art-a: var(--tone-neutral-a); --art-b: var(--tone-neutral-b); }
 
 .product-main {
   min-width: 0;
@@ -749,12 +692,12 @@ body[data-view="overview"] .workspace {
 .primary-button {
   border: 1px solid var(--brand-strong);
   background: linear-gradient(150deg, var(--brand), var(--brand-strong));
-  box-shadow: 0 5px 13px oklch(0.47 0.16 266 / 0.28);
+  box-shadow: var(--shadow-brand);
   color: white;
 }
 
 .primary-button:hover {
-  box-shadow: 0 8px 18px oklch(0.47 0.16 266 / 0.36);
+  box-shadow: var(--shadow-brand-lg);
 }
 
 .primary-button:disabled {

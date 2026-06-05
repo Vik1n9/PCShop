@@ -1,6 +1,6 @@
 # PCShop 線上估價單
 
-手機優先的電腦組裝估價單前端雛形。現階段以前端靜態頁面載入 CSV 資料，先完成零件挑選、相容性提示、進度總覽與估價單儲存流程，之後可將 `data/products.csv` 的資料入口替換為正式 API。介面美術與互動依《[規格書](規格書.txt)》與 [`PRODUCT.md`](PRODUCT.md) 設計，定調為「沉穩、精準、守護」的新手友善風格。
+**泓達電腦** 旗下旗艦數位產品。手機優先的電腦組裝估價單前端雛形：以前端靜態頁面載入 CSV 資料，完成零件挑選、相容性提示、進度總覽與估價單儲存流程，之後可將 `data/products.csv` 的資料入口替換為正式 API。介面美術與互動依《[規格書](規格書.txt)》、[`PRODUCT.md`](PRODUCT.md) 與 **泓達電腦 PCShop 設計系統** 實作，定調為「沉穩、精準、守護」的新手友善風格。
 
 ## 線上測試（GitHub Pages）
 
@@ -31,9 +31,15 @@
 - **漸進式資訊揭露**：先看名稱、價格、關鍵規格；細節透過點擊原地展開或全螢幕覆蓋層揭示。
 - **清楚的狀態語意**：已選 / 展開 / 不相容 / 軟警告各有明確視覺與文字。
 - **行動優先、拇指友善**：底部導覽、可滑動類別膠囊、全螢幕由下滑入的完整介紹。
+- **品牌字體**：Inter（西文 / 數字）+ Noto Sans TC（繁體中文），自 Google Fonts 載入。
 - **無障礙**：顧及 WCAG AA 對比、可見 focus 樣式，並支援 `prefers-reduced-motion` 減動偏好。
 
-所有樣式集中於 `styles.css`，並以 `:root` 的 CSS 變數（design tokens）統一管理色彩、圓角、陰影與間距。
+樣式分兩層：
+
+- `colors_and_type.css` — design tokens（`:root` 的色彩、字體、字級、字重、圓角、陰影、產品色調）與語意排版 helper class，是視覺事實來源。
+- `styles.css` — 元件層樣式，全部引用上述 token。
+
+品牌素材集中於 `assets/`：`logo-mark.svg`（PC 漸層圓角方塊，topbar 標誌與 favicon 使用）、`logo-lockup.svg`（含「泓達電腦 · 線上估價單」字標）、`icons/*.svg`（狀態線稿圖示）。
 
 ## 本機預覽
 
@@ -60,4 +66,4 @@ http://localhost:4173/
 - 若後端 API 完成，優先替換 `script.js` 內的 `DATA_URL` 與 `fetchProducts()`。
 - 若商品欄位增加，請同步更新 `data/products.csv` 與 `normalizeProduct()`。
 - 相容性規則目前在前端 `checkBuild()`，正式版建議移至後端 API，前端只負責呈現 API 回傳的 hard conflict 與 soft warning。
-- 調整外觀時優先修改 `styles.css` `:root` 的 CSS 變數，可一次套用全站色彩與間距；`script.js` 產生的 class 名稱與 DOM 結構即為樣式對應的接點，盡量沿用以免破壞既有樣式。
+- 調整外觀時優先修改 `colors_and_type.css` `:root` 的 design tokens，可一次套用全站色彩、字級與間距；`styles.css` 為元件層、`script.js` 產生的 class 名稱與 DOM 結構即為樣式對應的接點，盡量沿用以免破壞既有樣式。
