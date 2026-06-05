@@ -1,0 +1,178 @@
+/* =========================================================================
+   泓達電腦 · PCShop 線上估價單 — 設計基礎 (Design Tokens)
+   設計語彙：沉穩、精準、守護 (calm / precise / protective)
+   來源：Claude Design「泓達電腦 PCShop 設計系統」之 colors_and_type.css。
+   色彩以 oklch 定義，行動優先、WCAG AA 對比。調整外觀請優先改本檔 :root。
+   ========================================================================= */
+
+/* Inter 為產品實際使用字體；Noto Sans TC 提供繁體中文字符。
+   兩者皆載入自 Google Fonts CDN。若需離線使用，請改為自架字體檔。 */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap");
+
+:root {
+  color-scheme: light;
+
+  /* ---------------------------------------------------------- 中性色 */
+  /* 帶冷調的板岩灰，安靜不刺眼 */
+  --bg:           oklch(0.985 0.004 256);
+  --bg-2:         oklch(0.965 0.008 256);
+  --surface:      oklch(1 0 0);
+  --surface-2:    oklch(0.972 0.006 256);
+  --surface-3:    oklch(0.95 0.011 256);
+  --ink:          oklch(0.26 0.03 264);   /* 主文字 */
+  --ink-soft:     oklch(0.4 0.03 264);    /* 次文字 */
+  --muted:        oklch(0.54 0.025 264);  /* 輔助 / 標籤文字 */
+  --line:         oklch(0.905 0.012 264); /* 一般分隔線 */
+  --line-strong:  oklch(0.84 0.02 264);   /* 強調邊框 */
+
+  /* ---------------------------------------------------------- 品牌色 */
+  /* 沉穩可信的靛藍，像一位安靜的店員 */
+  --brand:        oklch(0.55 0.155 264);
+  --brand-strong: oklch(0.47 0.16 266);
+  --brand-ink:    oklch(0.34 0.13 266);   /* 品牌色文字 (AA on light) */
+  --brand-tint:   oklch(0.955 0.028 264); /* 最淺品牌底 */
+  --brand-tint-2: oklch(0.91 0.05 264);   /* 品牌膠囊底 */
+
+  /* ---------------------------------------------------- 輔助 / 語意色 */
+  /* 青藍 — 代表「相容 / 通過」 */
+  --accent:       oklch(0.62 0.11 214);
+  --accent-tint:  oklch(0.95 0.035 214);
+
+  --success:      oklch(0.57 0.13 158);
+  --success-ink:  oklch(0.4 0.12 158);
+  --success-tint: oklch(0.95 0.05 158);
+  --warning:      oklch(0.72 0.15 80);
+  --warning-ink:  oklch(0.46 0.11 70);
+  --warning-tint: oklch(0.955 0.06 86);
+  --danger:       oklch(0.57 0.2 25);
+  --danger-ink:   oklch(0.45 0.17 26);
+  --danger-tint:  oklch(0.955 0.045 25);
+
+  /* ---------------------------------------- 產品色調 (縮圖漸層 a→b) */
+  /* 每個零件大類有固定色調，用於縮圖 / hero 漸層。 */
+  --tone-amber-a:   oklch(0.8 0.13 78);   --tone-amber-b:   oklch(0.55 0.12 52);  /* CPU */
+  --tone-blue-a:    oklch(0.68 0.12 234); --tone-blue-b:    oklch(0.44 0.12 262); /* 主機板 */
+  --tone-violet-a:  oklch(0.66 0.14 296); --tone-violet-b:  oklch(0.44 0.12 280); /* 顯示卡 */
+  --tone-green-a:   oklch(0.72 0.13 156); --tone-green-b:   oklch(0.5 0.1 178);   /* 記憶體 */
+  --tone-cyan-a:    oklch(0.75 0.12 210); --tone-cyan-b:    oklch(0.5 0.12 234);  /* 儲存裝置 */
+  --tone-red-a:     oklch(0.7 0.16 28);   --tone-red-b:     oklch(0.52 0.14 14);  /* 散熱器 */
+  --tone-slate-a:   oklch(0.62 0.05 256); --tone-slate-b:   oklch(0.38 0.04 262); /* 電源 */
+  --tone-teal-a:    oklch(0.72 0.12 184); --tone-teal-b:    oklch(0.46 0.09 200); /* 機殼 */
+  --tone-neutral-a: oklch(0.72 0.03 256); --tone-neutral-b: oklch(0.46 0.03 262); /* 其他 */
+
+  /* ------------------------------------------------------ 圓角 / 半徑 */
+  --radius:       14px;  /* 卡片、按鈕容器 */
+  --radius-sm:    10px;  /* 縮圖、規格格、輸入框 */
+  --radius-lg:    20px;  /* 總額卡、桌面對話框 */
+  --radius-pill:  999px; /* 膠囊、徽章、進度條 */
+
+  /* ----------------------------------------------------------- 陰影 */
+  --shadow-sm: 0 1px 2px oklch(0.3 0.04 264 / 0.05), 0 1px 3px oklch(0.3 0.04 264 / 0.05);
+  --shadow-md: 0 6px 16px oklch(0.3 0.04 264 / 0.08), 0 2px 5px oklch(0.3 0.04 264 / 0.05);
+  --shadow-lg: 0 18px 48px oklch(0.28 0.05 264 / 0.22);
+  /* 品牌按鈕專用投影 (靛藍光暈) */
+  --shadow-brand:    0 5px 13px oklch(0.47 0.16 266 / 0.28);
+  --shadow-brand-lg: 0 8px 18px oklch(0.47 0.16 266 / 0.36);
+
+  /* -------------------------------------------------- 尺寸 / 版面常數 */
+  --tap:       44px;  /* 最小拇指熱區 */
+  --topbar-h:  64px;
+  --strip-h:   112px; /* 進度條區概估高度 */
+
+  /* ----------------------------------------------------------- 字體 */
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --font: var(--font-sans); /* 別名，相容原始碼 */
+
+  /* 字重 (Inter / Noto Sans TC variable) */
+  --w-regular:  400;
+  --w-medium:   500;
+  --w-semibold: 650;
+  --w-bold:     700;
+  --w-heavy:    800;
+  --w-black:    850;
+
+  /* ---------------------------------------------- 語意字級 (type ramp) */
+  /* 行動優先；桌面端僅放大 view-heading。單位 rem，根 16px。 */
+  --t-hero:       1.6rem;   /* 對話框大標 */
+  --t-h1:         1.4rem;   /* 頁面主標 (view-heading) */
+  --t-display-md: 1.5rem;   /* 總額數字 */
+  --t-h3:         1.04rem;  /* 區段標題 / dialog-section */
+  --t-title:      1rem;     /* 產品卡標題 */
+  --t-price:      1.08rem;  /* 價格 */
+  --t-body:       1rem;     /* 內文 */
+  --t-sm:         0.88rem;  /* 次要文字 / 按鈕 */
+  --t-xs:         0.82rem;  /* 說明 / 計數 */
+  --t-2xs:        0.74rem;  /* 徽章 / chip / 標籤 */
+
+  --leading-tight: 1.15;
+  --leading-snug:  1.3;
+  --leading-body:  1.5;
+  --tracking-tight: -0.02em;
+  --tracking-h:     -0.01em;
+
+  font-family: var(--font-sans);
+}
+
+/* =========================================================================
+   語意排版 helper class — 可直接套用於任一元素
+   ========================================================================= */
+
+.t-hero {
+  font-size: var(--t-hero);
+  font-weight: var(--w-heavy);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-h);
+  text-wrap: balance;
+}
+.t-h1 {
+  font-size: var(--t-h1);
+  font-weight: var(--w-heavy);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-h);
+  text-wrap: balance;
+}
+.t-h3 {
+  font-size: var(--t-h3);
+  font-weight: var(--w-heavy);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-h);
+}
+.t-title {
+  font-size: var(--t-title);
+  font-weight: 750;
+  line-height: var(--leading-snug);
+  text-wrap: pretty;
+}
+.t-price {
+  font-size: var(--t-price);
+  font-weight: var(--w-black);
+  font-variant-numeric: tabular-nums;
+  color: var(--brand-ink);
+}
+.t-display {
+  font-size: var(--t-display-md);
+  font-weight: var(--w-black);
+  font-variant-numeric: tabular-nums;
+  color: var(--brand-ink);
+}
+.t-body {
+  font-size: var(--t-body);
+  font-weight: var(--w-regular);
+  line-height: var(--leading-body);
+  color: var(--ink);
+}
+.t-muted {
+  font-size: var(--t-xs);
+  font-weight: var(--w-semibold);
+  color: var(--muted);
+}
+.t-label {
+  font-size: var(--t-2xs);
+  font-weight: var(--w-heavy);
+  letter-spacing: 0.01em;
+  color: var(--muted);
+}
+
+/* 數字一律使用 tabular-nums，價格 / 規格對齊不跳動 */
+.tnum { font-variant-numeric: tabular-nums; }
