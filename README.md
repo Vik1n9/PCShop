@@ -2,6 +2,21 @@
 
 手機優先的電腦組裝估價單前端雛形。現階段以前端靜態頁面載入 CSV 資料，先完成零件挑選、相容性提示、進度總覽與估價單儲存流程，之後可將 `data/products.csv` 的資料入口替換為正式 API。
 
+## 線上測試（GitHub Pages）
+
+部署完成後，直接用瀏覽器開啟以下網址即可測試，免下載、免本機伺服器：
+
+👉 **https://vik1n9.github.io/PCShop/**
+
+本倉庫已內建自動部署流程（`.github/workflows/pages.yml`），每次推送到 `main` 分支就會自動把整個靜態站台發佈到 GitHub Pages。**首次需要做一次性設定才會啟用：**
+
+1. 進入 GitHub 倉庫的 **Settings → Pages**。
+2. 在 **Build and deployment → Source** 選擇 **GitHub Actions**。
+3. 把本分支的變更合併進 `main`（或在 **Actions** 分頁手動執行 `Deploy to GitHub Pages`）。
+4. 部署成功後，上方網址即可開啟；也可以在 **Actions → Deploy to GitHub Pages** 工作流程的 `github-pages` 環境連結直接點進站台。
+
+> 注意：本倉庫目前為 **private**。若要讓上述網址公開可被任何人開啟，需將倉庫設為 public，或使用支援私有 Pages 的付費方案（GitHub Pro / Team / Enterprise）。在 public 倉庫下，GitHub Pages 為免費功能。
+
 ## 目前功能
 
 - 零件分類切換：處理器、主機板、記憶體、顯示卡、儲存裝置、機殼、電源供應器、散熱器與其他零件。
