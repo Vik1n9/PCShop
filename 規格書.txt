@@ -1,7 +1,7 @@
 # PC Assembly Online Quotation System – Development Specification
 
-**Version**: 2.6  
-**Date**: 2026-06-06 08:52 CST  
+**Version**: 2.7
+**Date**: 2026-06-06 09:17 CST
 **Design Principles**: Mobile-first, tag-driven internals, structured constraints, beginner-friendly
 
 ---
@@ -44,7 +44,8 @@ Build a mobile-first PC assembly quotation website that helps consumers who are 
   - Provide a product search box so users who already know the desired brand, model, or specification can quickly find matching products within the active category. Search covers product name, category, product ID, stock, price, badges, and key specs.  
   - When a category is selected, the system automatically filters out incompatible items based on already-chosen parts (e.g., motherboards only show compatible sockets).  
   - Smart filtering is enabled by default. In this mode, the system only shows items that can be directly added to the quote, protecting beginner users from accidental incompatibility.  
-  - Users can turn smart filtering off. In that mode, incompatible items remain visible with clear warnings and incompatibility reasons, and experienced users may still add them to the quote. Sales-policy restrictions such as assembly-only remain blocking.  
+  - Smart filtering uses one unified state control: the visible status button itself toggles the mode between “Smart filtering on” and “Smart filtering off”. Do not add a separate checkbox or duplicate option for the same behavior.
+  - When users turn smart filtering off through that status control, incompatible items remain visible with clear warnings and incompatibility reasons, and experienced users may still add them to the quote. Sales-policy restrictions such as assembly-only remain blocking.
 - Quick preview and full product details  
   - Tap a product card: inline expansion shows a carousel, key specs, price, and a “View full details” button.  
   - Full details open in a full-screen overlay with marketing images, complete spec table, compatibility notes, and a bottom “Add to quote” button.  
@@ -151,7 +152,7 @@ For multi-value fields (e.g., case supports multiple motherboard form factors), 
    WHERE socket = 'LGA1700' AND memory_type = 'DDR5'  
 5. Execute query; mark incompatible products (or exclude them – frontend toggle controls display).  
 6. Also run all hard constraint checks; if any conflict exists, return details.
-7. If smart filtering is enabled, incompatible items are excluded from the visible list or blocked from being added. If smart filtering is disabled, incompatible items remain visible with red warnings, and compatibility conflicts do not block adding them to the quote.  
+7. If smart filtering is enabled, incompatible items are excluded from the visible list or blocked from being added. If smart filtering is disabled, incompatible items remain visible with red warnings, and compatibility conflicts do not block adding them to the quote. The frontend exposes this as a single clickable status control; the status text and the toggle action must not be split into separate controls.
 
 ### 5.2 Conflict Reporting & Handling
 - When user tries to add a hard-conflict part, API returns 409 Conflict. Frontend shows red banner and a “Filter compatible alternatives” button.  
@@ -177,6 +178,7 @@ For multi-value fields (e.g., case supports multiple motherboard form factors), 
 
 ### 6.2 Part Picker Page Interactions
 - Horizontal scrollable category chips at the top (CPU, MB, …) – current category highlighted.  
+- Smart filtering appears as a clickable status control in the picker toolbar. Tapping the status switches between enabled and disabled states; the UI must not present a second checkbox or separate smart-filter option.
 - Product list as vertical card stream. Each card shows:  
   - Left: product thumbnail (3:2 ratio)  
   - Name, price, three key compatibility specs (e.g., LGA1700, DDR5, ATX)  

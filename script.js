@@ -390,7 +390,6 @@ function renderPicker() {
           <h1>${activeMeta.label}</h1>
           <p>${renderResultSummary(visibleProducts.length, compatibleCount, allProducts.length)}</p>
         </div>
-        <button class="secondary-button" type="button" data-action="compatible-filter">${smartFiltering ? "智能篩選中" : "開啟智能篩選"}</button>
       </div>
       <div class="category-tabs" aria-label="零件類別">
         ${categories.map(renderCategoryTab).join("")}
@@ -400,10 +399,15 @@ function renderPicker() {
           <span>搜尋產品</span>
           <input id="productSearch" type="search" value="${escapeHtml(searchQuery)}" placeholder="輸入品牌、型號或規格" autocomplete="off" />
         </label>
-        <label class="switch-control">
-          <input type="checkbox" id="smartFiltering" ${smartFiltering ? "checked" : ""} />
-          <span>智能篩選</span>
-        </label>
+        <button
+          class="filter-state-button ${smartFiltering ? "is-on" : "is-off"}"
+          type="button"
+          data-action="smart-filtering-toggle"
+          aria-pressed="${smartFiltering}"
+          aria-label="${smartFiltering ? "智能篩選中，點選後關閉" : "智能篩選已關閉，點選後開啟"}"
+        >
+          ${smartFiltering ? "智能篩選中" : "智能篩選關閉"}
+        </button>
         <span class="status-pill">${selectedParts[activeCategory] ? "已選" : "未選"}</span>
       </div>
     </div>
@@ -430,19 +434,13 @@ function renderPicker() {
   searchInput?.addEventListener("search", updateSearch);
   searchInput?.addEventListener("change", updateSearch);
 
-  els.workspace.querySelector("#smartFiltering")?.addEventListener("change", (event) => {
-    smartFiltering = event.target.checked;
+  els.workspace.querySelector("[data-action='smart-filtering-toggle']")?.addEventListener("click", () => {
+    smartFiltering = !smartFiltering;
     render();
     showNotice(
       smartFiltering ? "success" : "warning",
       smartFiltering ? "已開啟智能篩選，僅顯示可直接加入的相容品項。" : "已關閉智能篩選，不相容品項仍會標示提醒。"
     );
-  });
-
-  els.workspace.querySelector("[data-action='compatible-filter']")?.addEventListener("click", () => {
-    smartFiltering = true;
-    render();
-    showNotice("success", "已開啟智能篩選。");
   });
 
   bindProductCardEvents();
