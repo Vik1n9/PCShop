@@ -8,222 +8,222 @@
 
 ## 1. Project Overview & Objectives
 
-Build a **mobile-first** PC assembly quotation website that helps consumers who are unfamiliar with hardware – or just entering the DIY space – to independently select components, receive instant compatibility guarantees, and generate a purchasable, storable, shareable quote – without needing deep hardware knowledge.
+Build a mobile-first PC assembly quotation website that helps consumers who are unfamiliar with hardware – or just entering the DIY space – to independently select components, receive instant compatibility guarantees, and generate a purchasable, storable, shareable quote – without needing deep hardware knowledge.
 
 **Core Objectives**  
-- Use **internal tags** and **structured compatibility rules** to automate smart filtering and conflict prevention – eliminating socket mismatches, size overflows, insufficient wattage, etc.  
-- Provide an intuitive **assembly progress visualization** showing selected / missing parts, reducing the user’s memory load.  
-- Any selected part must show an **immediate product image preview**, with access to full illustrated details without leaving the quotation flow.  
-- Smooth mobile operation – all components and gestures designed for thumb‑friendly zones; desktop provides a denser multi‑column view.  
-- Admin panel can control frontend behavior via **dynamic tags** (e.g., bundle‑only, promo badges) without any frontend code changes.
+- Use internal tags and structured compatibility rules to automate smart filtering and conflict prevention – eliminating socket mismatches, size overflows, insufficient wattage, etc.  
+- Provide an intuitive assembly progress visualization showing selected and missing parts, reducing the user’s memory load.  
+- Any selected part must show an immediate product image preview, with access to full illustrated details without leaving the quotation flow.  
+- Smooth mobile operation – all components and gestures designed for thumb-friendly zones; desktop provides a denser multi-column view.  
+- Admin panel can control frontend behavior via dynamic tags (e.g., bundle-only, promo badges) without any frontend code changes.
 
 ---
 
 ## 2. Target Users & Core Design Principles
 
 **User Personas**  
-- Entry‑level DIYers with only a vague idea of PC specs, afraid of buying the wrong parts.  
-- Complete beginners who just want to know: “How much money gets me a PC that can play games / edit videos?”
+- Entry-level DIYers with only a vague idea of PC specs, afraid of buying the wrong parts.  
+- Complete beginners who just want to know: “How much money gets me a PC that can play games or edit videos?”
 
 **Design Principles**  
-1. **Instant feedback** – Every action’s state change (selected, conflict, suggestion) must reflect in the UI within 0.3 seconds.  
-2. **Progressive disclosure** – Default view shows only name, price, and key compatibility specs; deeper info expands on tap.  
-3. **Foolproof & guided** – Hard conflicts are blocked with a one‑tap “replace” suggestion; soft warnings are gentle but allow proceeding.  
-4. **Mobile‑first** – All interactions optimised for one‑handed portrait use; desktop enhances density and layout only.  
-5. **Tags never exposed** – Internal tag values control frontend behaviour (e.g., promo badges) but raw tag keys are never shown to users.
+1. Instant feedback – Every action’s state change (selected, conflict, suggestion) must reflect in the UI within 0.3 seconds.  
+2. Progressive disclosure – Default view shows only name, price, and key compatibility specs; deeper info expands on tap.  
+3. Foolproof and guided – Hard conflicts are blocked with a one-tap “replace” suggestion; soft warnings are gentle but allow proceeding.  
+4. Mobile-first – All interactions optimised for one-handed portrait use; desktop enhances density and layout only.  
+5. Tags never exposed – Internal tag values control frontend behaviour but raw tag keys are never shown to users.
 
 ---
 
 ## 3. Functional Requirements Overview
 
 ### 3.1 Customer Frontend
-- **Smart quotation homepage**  
+- Smart quotation homepage  
   - Bottom navigation: Assembly progress overview, Part picker, My quotations.  
   - Eight core categories: CPU, Motherboard, RAM, GPU, Storage, Case, PSU, Cooler.  
-- **Product list & real‑time filtering**  
-  - When a category is selected, the system automatically filters out incompatible items based on already‑chosen parts (e.g., motherboards only show compatible sockets).  
-  - Toggle “Show all” – incompatible items are greyed out and non‑selectable.  
-- **Quick preview & full product details**  
+- Product list and real-time filtering  
+  - When a category is selected, the system automatically filters out incompatible items based on already-chosen parts (e.g., motherboards only show compatible sockets).  
+  - Toggle “Show all” – incompatible items are greyed out and non-selectable.  
+- Quick preview and full product details  
   - Tap a product card: inline expansion shows a carousel, key specs, price, and a “View full details” button.  
-  - Full details open in a full‑screen overlay with marketing images, complete spec table, compatibility notes, and a bottom “Add to quote” button.  
-- **Visual assembly progress**  
+  - Full details open in a full-screen overlay with marketing images, complete spec table, compatibility notes, and a bottom “Add to quote” button.  
+- Visual assembly progress  
   - Horizontal progress bar at the top always shows “Selected X/8”.  
   - Missing categories are greyed out with icons; tapping them jumps directly to that part picker.  
-- **Conflict detection & smart suggestions**  
+- Conflict detection and smart suggestions  
   - Hard conflict on adding a part: red banner slides down explaining why, plus a “Show compatible alternatives” button.  
   - Soft warning (e.g., slightly low PSU wattage, no cooler): yellow banner, does not block addition.  
-- **Promo & assembly‑only badges**  
+- Promo and assembly-only badges  
   - Product cards automatically show badges like “Assembly only”, “Hot”, “Price drop” based on internal tags.  
   - “Assembly only” products cannot be added to a quote alone – they require a full system (checked by the backend).  
-- **Quotation management**  
-  - Save, rename, share link, export PDF / copy spec text.  
+- Quotation management  
+  - Save, rename, share link, export PDF, copy spec text.
 
 ### 3.2 Admin Backend
-- **Product data management**  
-  - Each part requires **structured compatibility fields** (CPU socket, RAM type, max GPU length, etc.) and can have multiple internal tags.  
+- Product data management  
+  - Each part requires structured compatibility fields (CPU socket, RAM type, max GPU length, etc.) and can have multiple internal tags.  
   - Image upload (main image, carousel, long marketing images).  
-- **Tag management**  
-  - Define tag keys (e.g., `bundle_only`, `hot_sale`, `discontinued`) with types (boolean, date, text).  
+- Tag management  
+  - Define tag keys (e.g., bundle_only, hot_sale, discontinued) with types (boolean, date, text).  
   - Configure each tag’s frontend behaviour: show badge, restrict solo sale, display countdown, etc.  
-- **Compatibility constraint configuration**  
-  - Visual dropdown interface to create cross‑category constraints (e.g., “CPU socket = MB socket”).  
+- Compatibility constraint configuration  
+  - Visual dropdown interface to create cross-category constraints (e.g., “CPU socket = MB socket”).  
   - Test immediately: simulate a component selection and see all constraint pass/fail statuses.  
-- **Quotation analytics**  
+- Quotation analytics  
   - Popular parts ranking, common conflict combinations – to assist inventory and sales decisions.
 
 ---
 
 ## 4. Database & Tag System Design
 
-The system uses a **hybrid model of structured fields + auxiliary internal tags** – balancing performance, maintainability, and flexibility.
+The system uses a hybrid model of structured fields plus auxiliary internal tags – balancing performance, maintainability, and flexibility.
 
-### 4.1 Core products table
-Each category has fixed, non‑nullable compatibility fields (some may allow NULL but with sensible defaults):
+### 4.1 Core Products Table
+Each category has fixed, non-nullable compatibility fields (some may allow NULL but with sensible defaults):
 
-- **CPU**: `socket`, `tdp`, `memory_type` (DDR4/DDR5), `pcie_version`  
-- **Motherboard**: `socket`, `memory_type`, `form_factor` (ATX/mATX/ITX), `pcie_version`  
-- **RAM**: `memory_type`, `capacity`, `speed`  
-- **GPU**: `length_mm`, `tdp`, `pcie_version`, `power_connector` (8‑pin/12VHPWR)  
-- **Case**: `max_gpu_length_mm`, `mb_form_factor_support` (array of supported form factors), `max_psu_length_mm`  
-- **PSU**: `wattage`, `modular_type`, `length_mm`  
-- **Storage / Cooler**: necessary specs (M.2 type, radiator size, etc.)
+- CPU: socket, tdp, memory_type (DDR4/DDR5), pcie_version  
+- Motherboard: socket, memory_type, form_factor (ATX/mATX/ITX), pcie_version  
+- RAM: memory_type, capacity, speed  
+- GPU: length_mm, tdp, pcie_version, power_connector (8-pin or 12VHPWR)  
+- Case: max_gpu_length_mm, mb_form_factor_support (array of supported form factors), max_psu_length_mm  
+- PSU: wattage, modular_type, length_mm  
+- Storage and Cooler: necessary specs (M.2 type, radiator size, etc.)
 
-**Benefit**: All compatibility filtering can be done with simple SQL conditions – fast queries and complete data.
+Benefit: All compatibility filtering can be done with simple SQL conditions – fast queries and complete data.
 
-### 4.2 Internal tags table
-Tags are **configured in the admin panel and processed by server logic**. The frontend only receives action flags from the API – raw tag keys never reach the user.
+### 4.2 Internal Tags Table
+Tags are configured in the admin panel and processed by server logic. The frontend only receives action flags from the API – raw tag keys never reach the user.
 
-- **Tag definitions table**  
-  - `tag_key` (unique identifier, e.g., `bundle_only`, `promo`)  
-  - `display_type`: `badge`, `restrict`, `info`  
-  - `config`: JSON with extra parameters (badge colour, text, restriction scope).
+- Tag definitions table  
+  - tag_key (unique identifier, e.g., bundle_only, promo)  
+  - display_type: badge, restrict, info  
+  - config: JSON with extra parameters (badge colour, text, restriction scope).
 
-- **Product tag values table**  
-  - `product_id`, `tag_definition_id`, `value` (nullable for booleans)
+- Product tag values table  
+  - product_id, tag_definition_id, value (nullable for booleans)
 
-**Example usage**
+**Example Usage**
 
 | Tag key       | Type     | Behaviour |
 |---------------|----------|-----------|
-| `bundle_only` | restrict | Product can only be sold as part of a full assembly. Frontend hides “Add to cart” (or quote alone); if missing other core parts, show warning. |
-| `hot_sale`    | badge    | Show “Hot” flame icon, optionally boost sort order. |
-| `price_drop`  | badge+info | Show “Price drop” badge with optional deadline. |
-| `clearance`   | info     | “Discontinued soon” message to encourage quick purchase. |
+| bundle_only   | restrict | Product can only be sold as part of a full assembly. Frontend hides solo addition; if missing other core parts, show warning. |
+| hot_sale      | badge    | Show “Hot” flame icon, optionally boost sort order. |
+| price_drop    | badge + info | Show “Price drop” badge with optional deadline. |
+| clearance     | info     | “Discontinued soon” message to encourage quick purchase. |
 
-All tag logic is resolved in the backend API layer. Products returned to the frontend include only `badge_list` (badge text + style) and `restrictions` (e.g., `{solo_sale: false}`). Frontend rendering is completely decoupled.
+All tag logic is resolved in the backend API layer. Products returned to the frontend include only badge_list (badge text and style) and restrictions (e.g., {solo_sale: false}). Frontend rendering is completely decoupled.
 
-### 4.3 Compatibility constraints table
-Instead of a dynamic rule engine, constraints are stored as rows defining cross‑category conditions.
+### 4.3 Compatibility Constraints Table
+Instead of a dynamic rule engine, constraints are stored as rows defining cross-category conditions.
 
 | Column               | Description |
 |----------------------|-------------|
-| `source_category`    | Category of the source part |
-| `target_category`    | Category of the target part |
-| `source_field`       | Field name in source product table |
-| `target_field`       | Field name in target product table |
-| `operator`           | `=`, `<=`, `IN`, `>=` |
-| `is_hard`            | Hard error (1) or soft warning (0) |
-| `message`            | User‑friendly message, supports `{value}` placeholder |
+| source_category      | Category of the source part |
+| target_category      | Category of the target part |
+| source_field         | Field name in source product table |
+| target_field         | Field name in target product table |
+| operator             | =, <=, IN, >= |
+| is_hard              | Hard error (1) or soft warning (0) |
+| message              | User-friendly message, supports {value} placeholder |
 
-**Constraint examples**  
-- CPU socket matches MB: `CPU.socket = MB.socket` (hard)  
-- GPU length ≤ case max GPU length: `GPU.length_mm <= Case.max_gpu_length_mm` (hard)  
-- PSU wattage ≥ CPU TDP + GPU TDP + 150W: `PSU.wattage >= CPU.tdp + GPU.tdp + 150` (soft warning)
+**Constraint Examples**  
+- CPU socket matches motherboard: CPU.socket = MB.socket (hard)  
+- GPU length ≤ case max GPU length: GPU.length_mm <= Case.max_gpu_length_mm (hard)  
+- PSU wattage ≥ CPU TDP + GPU TDP + 150W: PSU.wattage >= CPU.tdp + GPU.tdp + 150 (soft warning)
 
-For multi‑value fields (e.g., case supports multiple MB form factors), store `mb_form_factor_support` as JSON array and use operator `IN`.
+For multi-value fields (e.g., case supports multiple motherboard form factors), store mb_form_factor_support as JSON array and use operator IN.
 
-### 4.4 Data consistency guarantees
+### 4.4 Data Consistency Guarantees
 - Admin panel forces required fields per category – product cannot be listed without them.  
 - Batch import automatically validates format and reports missing critical fields.  
-- After changing constraints, one‑click revalidation of all existing products generates an exception report.
+- After changing constraints, one-click revalidation of all existing products generates an exception report.
 
 ---
 
 ## 5. Smart Filtering & Conflict Detection Engine
 
-### 5.1 Filtering flow (positive filtering)
-1. User has a selected part set `S`.  
-2. Frontend requests `GET /api/products/{category}?selected={cpu_id, mb_id,...}`  
-3. Backend loads all constraints where `source_category` is in `S` and `target_category` = current category.  
-4. Extract corresponding field values from `S` and build SQL WHERE clause, e.g.:  
-   `WHERE socket = 'LGA1700' AND memory_type = 'DDR5'`  
+### 5.1 Filtering Flow (Positive Filtering)
+1. User has a selected part set S.  
+2. Frontend requests GET /api/products/{category}?selected={cpu_id, mb_id,...}  
+3. Backend loads all constraints where source_category is in S and target_category equals current category.  
+4. Extract corresponding field values from S and build SQL WHERE clause, e.g.:  
+   WHERE socket = 'LGA1700' AND memory_type = 'DDR5'  
 5. Execute query; mark incompatible products (or exclude them – frontend toggle controls display).  
 6. Also run all hard constraint checks; if any conflict exists, return details.
 
-### 5.2 Conflict reporting & handling
-- When user tries to add a hard‑conflict part, API returns `409 Conflict`. Frontend shows red banner and a “Filter compatible alternatives” button.  
+### 5.2 Conflict Reporting & Handling
+- When user tries to add a hard-conflict part, API returns 409 Conflict. Frontend shows red banner and a “Filter compatible alternatives” button.  
 - If an existing part becomes incompatible due to a later selection (e.g., changing CPU makes the motherboard incompatible), the system automatically marks that part as “Needs replacement” and pauses total price calculation until resolved.  
 - Soft warnings do not block – they appear as a yellow banner below the progress bar and do not affect total price.
 
-### 5.3 Internal tag‑driven behaviour control
-- Product objects include a `restrictions` field, e.g., `{bundle_only: true}`.  
-- If user tries to add a `bundle_only` GPU alone, the system shows a popup: “This product is only available as part of a full assembly. Please select a motherboard and CPU first” – and prevents addition.  
-- When saving a quote: if any `bundle_only` part exists without required core parts, show a warning and disallow submission.
+### 5.3 Internal Tag-Driven Behaviour Control
+- Product objects include a restrictions field, e.g., {bundle_only: true}.  
+- If user tries to add a bundle_only GPU alone, the system shows a popup: “This product is only available as part of a full assembly. Please select a motherboard and CPU first” – and prevents addition.  
+- When saving a quote: if any bundle_only part exists without required core parts, show a warning and disallow submission.
 
 ---
 
-## 6. UI & Interaction Design (Mobile‑First)
+## 6. UI & Interaction Design (Mobile-First)
 
-### 6.1 Overall layout (portrait phone)
-- **Bottom navigation bar** (fixed):  
-  - 🖥️ Assembly progress (overview of current config and missing parts)  
-  - 🔍 Part picker (quick category switching)  
-  - 📋 My quotations (history)  
-- **Top progress bar**: Always shows “Selected X/8”, with a list of missing category icons on the right – tap to jump.  
-- **Content area**: Changes according to selected navigation tab.
+### 6.1 Overall Layout (Portrait Phone)
+- Bottom navigation bar (fixed):  
+  - Assembly progress (overview of current config and missing parts)  
+  - Part picker (quick category switching)  
+  - My quotations (history)  
+- Top progress bar: Always shows “Selected X/8”, with a list of missing category icons on the right – tap to jump.  
+- Content area: Changes according to selected navigation tab.
 
-### 6.2 Part picker page interactions
-- **Horizontal scrollable category chips** at the top (CPU, MB, …) – current category highlighted.  
-- Product list as **vertical card stream**. Each card shows:  
+### 6.2 Part Picker Page Interactions
+- Horizontal scrollable category chips at the top (CPU, MB, …) – current category highlighted.  
+- Product list as vertical card stream. Each card shows:  
   - Left: product thumbnail (3:2 ratio)  
-  - Name, price, three key compatibility specs (e.g., `LGA1700`, `DDR5`, `ATX`)  
-  - Top‑right badge area – rendered from internal tags (🔥 Hot, ⏬ Price drop, 🚫 Assembly only)  
-- **Tap on card**: inline expansion – card height extends to show:  
+  - Name, price, three key compatibility specs (e.g., LGA1700, DDR5, ATX)  
+  - Top-right badge area – rendered from internal tags (e.g., “Hot”, “Price drop”, “Assembly only”)  
+- Tap on card: inline expansion – card height extends to show:  
   - Image carousel (swipeable, up to 5 images)  
   - Structured spec summary (icon + text, e.g., length comparison)  
-  - Buttons: “View full details” & “Add to quote”  
-- **Tap “View full details”**: slides up a **full‑screen overlay** containing marketing long image, complete spec table, dynamic compatibility notes (e.g., “This GPU fits your current case”). Closing the overlay leaves the card expanded – user can then decide to add.
+  - Buttons: “View full details” and “Add to quote”  
+- Tap “View full details”: slides up a full-screen overlay containing marketing long image, complete spec table, dynamic compatibility notes (e.g., “This GPU fits your current case”). Closing the overlay leaves the card expanded – user can then decide to add.
 
-### 6.3 Assembly progress overview page
-- Centered around a simplified motherboard line‑art. Selected parts light up in colour; missing positions show dotted outline with category name.  
+### 6.3 Assembly Progress Overview Page
+- Centered around a simplified motherboard line-art. Selected parts light up in colour; missing positions show dotted outline with category name.  
 - Tap any position to jump directly to that part picker.  
-- Below: list of selected parts – long‑press to remove or replace.  
+- Below: list of selected parts – long-press to remove or replace.  
 - Clearly shown total price and “Save quotation” button.
 
-### 6.4 Conflict & notification presentation
-- **Hard conflict**: Red banner slides down below the top progress bar, with error message and a “Pick compatible alternatives for me” button; conflicting card border turns red, and a subtle vibration animation (on supported devices).  
-- **Soft warning**: Yellow banner with suggestion, no blocking.  
-- **Assembly‑only restriction**: Badge shows “Assembly only”; if user attempts to add it without meeting requirements, a friendly dialog explains the rule.
+### 6.4 Conflict & Notification Presentation
+- Hard conflict: Red banner slides down below the top progress bar, with error message and a “Pick compatible alternatives for me” button; conflicting card border turns red, and a subtle vibration animation (on supported devices).  
+- Soft warning: Yellow banner with suggestion, no blocking.  
+- Assembly-only restriction: Badge shows “Assembly only”; if user attempts to add it without meeting requirements, a friendly dialog explains the rule.
 
-### 6.5 Desktop companion layout
-- When screen width ≥ 1024px, interface automatically switches to a two‑column layout:  
+### 6.5 Desktop Companion Layout
+- When screen width ≥ 1024px, interface automatically switches to a two-column layout:  
   - Left column (40%): Assembly progress overview (fixed), including interactive exploded view and part list.  
-  - Right column (60%): Part picker – products shown in a grid; detail expansion uses a right‑side floating panel that does not obscure the main list.  
-- **No hover‑dependent interactions** – all expansion requires a tap.
+  - Right column (60%): Part picker – products shown in a grid; detail expansion uses a right-side floating panel that does not obscure the main list.  
+- No hover-dependent interactions – all expansion requires a tap.
 
 ---
 
 ## 7. Recommended Technology Stack
 
 ### 7.1 Frontend
-- **Framework**: Next.js (React) – supports SSG/SSR; quotation sharing via dynamic routes.  
-- **Styling**: Tailwind CSS – mobile‑first breakpoints.  
-- **State management**: React Query (server state) + Zustand (client selection state, UI interactions).  
-- **Animations & gestures**: Framer Motion (expand/collapse, overlay transitions); native Touch Events for auxiliary gestures.  
-- **Image optimisation**: `next/image` for automatic WebP conversion and responsive resolution.
+- Framework: Next.js (React) – supports SSG and SSR; quotation sharing via dynamic routes.  
+- Styling: Tailwind CSS – mobile-first breakpoints.  
+- State management: React Query (server state) + Zustand (client selection state, UI interactions).  
+- Animations and gestures: Framer Motion (expand/collapse, overlay transitions); native Touch Events for auxiliary gestures.  
+- Image optimisation: next/image for automatic WebP conversion and responsive resolution.
 
 ### 7.2 Backend
-- **Runtime**: Node.js (NestJS or Express) or Python FastAPI – depending on team expertise.  
-- **Database**: PostgreSQL – JSONB fields for flexible specs; Redis for caching popular filter results.  
-- **API design**: RESTful. Core endpoints:  
-  - `GET /api/products/{category}` (with filtering params)  
-  - `POST /api/estimate/validate`  
-  - `GET /api/tags/actions?product_id=` (returns behaviour flags for a product)  
-- **Image storage**: Cloud object storage (S3‑compatible) + CDN.
+- Runtime: Node.js (NestJS or Express) or Python FastAPI – depending on team expertise.  
+- Database: PostgreSQL – JSONB fields for flexible specs; Redis for caching popular filter results.  
+- API design: RESTful. Core endpoints:  
+  - GET /api/products/{category} (with filtering params)  
+  - POST /api/estimate/validate  
+  - GET /api/tags/actions?product_id= (returns behaviour flags for a product)  
+- Image storage: Cloud object storage (S3-compatible) + CDN.
 
 ### 7.3 Deployment & Operations
-- Containerised (Docker) with CI/CD auto‑deployment.  
-- Admin panel can be a separate SPA or integrated into the same Next.js project with middleware‑based authorisation.
+- Containerised (Docker) with CI/CD auto-deployment.  
+- Admin panel can be a separate SPA or integrated into the same Next.js project with middleware-based authorisation.
 
 ---
 
@@ -231,17 +231,17 @@ For multi‑value fields (e.g., case supports multiple MB form factors), store `
 
 | Phase | Content | Key Deliverables | Estimated Duration |
 |-------|---------|------------------|--------------------|
-| **P0: Infrastructure** | Database design, structured field definitions, product & tag CRUD, basic API | Manageable product admin, API skeleton | 2 weeks |
-| **P1: Core filtering & constraints** | Compatibility constraint configuration & resolution, product filtering engine, conflict detection API | Backend service that auto‑filters based on selected parts and returns conflicts | 2 weeks |
-| **P2: Mobile main flow** | Bottom navigation, part list (expandable cards), assembly progress bar, conflict banners, product image carousel | Smooth mobile quoting with basic images and specs | 3 weeks |
-| **P3: Full details & tag integration** | Full‑screen product overlay, tag behaviour rendering (bundle‑only, promo badges), save & share quotation | Feature‑complete MVP for internal testing | 2 weeks |
-| **P4: Desktop adaptation & polish** | Two‑column desktop layout, interactive assembly diagram, performance tuning (images, caching), accessibility details | Production‑ready release | 2 weeks |
-| **P5: Testing & launch** | Cross‑device testing, usability testing with novices, load testing, admin training | Live system & monitoring | 1 week |
+| P0: Infrastructure | Database design, structured field definitions, product and tag CRUD, basic API | Manageable product admin, API skeleton | 2 weeks |
+| P1: Core filtering and constraints | Compatibility constraint configuration and resolution, product filtering engine, conflict detection API | Backend service that auto-filters based on selected parts and returns conflicts | 2 weeks |
+| P2: Mobile main flow | Bottom navigation, part list (expandable cards), assembly progress bar, conflict banners, product image carousel | Smooth mobile quoting with basic images and specs | 3 weeks |
+| P3: Full details and tag integration | Full-screen product overlay, tag behaviour rendering (bundle-only, promo badges), save and share quotation | Feature-complete MVP for internal testing | 2 weeks |
+| P4: Desktop adaptation and polish | Two-column desktop layout, interactive assembly diagram, performance tuning (images, caching), accessibility details | Production-ready release | 2 weeks |
+| P5: Testing and launch | Cross-device testing, usability testing with novices, load testing, admin training | Live system and monitoring | 1 week |
 
 ---
 
 ## 9. Summary
 
-This specification reduces complex hardware compatibility logic into **structured fields + a configurable constraint table** – ensuring high performance, stability, and easy maintenance. Meanwhile, variable requirements such as promotions and assembly restrictions are encapsulated in an **internal tag mechanism**, allowing operations teams to control frontend behaviour without development effort.
+This specification reduces complex hardware compatibility logic into structured fields plus a configurable constraint table – ensuring high performance, stability, and easy maintenance. Meanwhile, variable requirements such as promotions and assembly restrictions are encapsulated in an internal tag mechanism, allowing operations teams to control frontend behaviour without development effort.
 
-On the customer side, **mobile‑first light interactions** (expandable cards, full‑screen details, intuitive progress bar) replace heavy hovers and page jumps. Beginners can confidently complete their first PC quotation on a phone – balancing enjoyment with the assurance that nothing will go wrong.
+On the customer side, mobile-first light interactions (expandable cards, full-screen details, intuitive progress bar) replace heavy hovers and page jumps. Beginners can confidently complete their first PC quotation on a phone – balancing enjoyment with the assurance that nothing will go wrong.
