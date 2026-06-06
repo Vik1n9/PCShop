@@ -537,7 +537,7 @@ function renderProductCard(entry) {
         <div class="card-actions">
           <a class="ghost-button official-link" href="${escapeHtml(officialUrl)}" target="_blank" rel="noopener noreferrer">產品官網</a>
           <button class="ghost-button" type="button" data-expand-product="${product.id}">${expanded ? "收合" : "詳細"}</button>
-          <button class="primary-button" type="button" data-add-product="${product.id}" ${blocked ? "disabled" : ""}>${selected ? "已加入" : "加入估價單"}</button>
+          <button class="primary-button" type="button" data-add-product="${product.id}" ${blocked && !selected ? "disabled" : ""} ${selected ? `aria-label="移除 ${escapeHtml(product.name)}" title="再次點擊移除"` : ""}>${selected ? "已加入" : "加入估價單"}</button>
         </div>
       </div>
       ${expanded ? renderProductExtra(product, analysis) : ""}
@@ -559,6 +559,7 @@ function renderBadges(product) {
 
 function renderProductExtra(product, analysis) {
   const blocked = shouldBlockAdd(analysis);
+  const selected = selectedParts[product.category]?.id === product.id;
   const officialUrl = getProductOfficialUrl(product);
   return `
     <div class="product-extra">
@@ -575,7 +576,7 @@ function renderProductExtra(product, analysis) {
       <div class="detail-actions">
         <button class="secondary-button" type="button" data-detail-product="${product.id}">查看完整介紹</button>
         <a class="ghost-button official-link" href="${escapeHtml(officialUrl)}" target="_blank" rel="noopener noreferrer">前往產品官網</a>
-        <button class="primary-button" type="button" data-add-product="${product.id}" ${blocked ? "disabled" : ""}>加入估價單</button>
+        <button class="primary-button" type="button" data-add-product="${product.id}" ${blocked && !selected ? "disabled" : ""} ${selected ? `aria-label="移除 ${escapeHtml(product.name)}" title="再次點擊移除"` : ""}>${selected ? "已加入" : "加入估價單"}</button>
       </div>
     </div>
   `;
@@ -607,7 +608,7 @@ function bindProductCardEvents() {
   });
 
   els.workspace.querySelectorAll("[data-add-product]").forEach((button) => {
-    button.addEventListener("click", () => addProduct(button.dataset.addProduct));
+    button.addEventListener("click", () => toggleProduct(button.dataset.addProduct));
   });
 
   els.workspace.querySelectorAll("[data-detail-product]").forEach((button) => {
@@ -751,6 +752,18 @@ function addProduct(productId) {
   render();
 }
 
+function toggleProduct(productId) {
+  const product = products.find((item) => item.id === productId);
+  if (!product) return;
+
+  if (selectedParts[product.category]?.id === product.id) {
+    removePart(product.category);
+    return;
+  }
+
+  addProduct(product.id);
+}
+
 function shouldBlockAdd(analysis) {
   if (smartFiltering) return analysis.hard.length > 0;
   return analysis.hard.some((issue) => issue.policy === true);
@@ -826,6 +839,7 @@ function openProductDialog(productId) {
   const product = products.find((item) => item.id === productId);
   if (!product) return;
   const analysis = analyzeCandidate(product);
+  const selected = selectedParts[product.category]?.id === product.id;
 
   els.dialog.innerHTML = `
     <div class="dialog-shell">
@@ -874,7 +888,7 @@ function openProductDialog(productId) {
         </section>
         <div class="detail-actions">
           <a class="ghost-button official-link" href="${escapeHtml(getProductOfficialUrl(product))}" target="_blank" rel="noopener noreferrer">前往產品官網</a>
-          <button class="primary-button" type="button" data-dialog-add="${product.id}" ${shouldBlockAdd(analysis) ? "disabled" : ""}>加入估價單</button>
+          <button class="primary-button" type="button" data-dialog-add="${product.id}" ${shouldBlockAdd(analysis) && !selected ? "disabled" : ""} ${selected ? `aria-label="移除 ${escapeHtml(product.name)}" title="再次點擊移除"` : ""}>${selected ? "已加入" : "加入估價單"}</button>
           <button class="ghost-button" type="button" data-close-dialog>關閉</button>
         </div>
       </div>
@@ -885,7 +899,7 @@ function openProductDialog(productId) {
     button.addEventListener("click", () => els.dialog.close());
   });
   els.dialog.querySelector("[data-dialog-add]")?.addEventListener("click", (event) => {
-    addProduct(event.currentTarget.dataset.dialogAdd);
+    toggleProduct(event.currentTarget.dataset.dialogAdd);
     els.dialog.close();
   });
   els.dialog.showModal();
