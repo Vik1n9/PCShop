@@ -1,7 +1,7 @@
 # PC Assembly Online Quotation System – Development Specification
 
-**Version**: 2.0  
-**Date**: 2026-06-05  
+**Version**: 2.5  
+**Date**: 2026-06-06  
 **Design Principles**: Mobile-first, tag-driven internals, structured constraints, beginner-friendly
 
 ---
