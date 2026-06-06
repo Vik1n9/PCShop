@@ -28,7 +28,8 @@ let selectedParts = {};
 let activeCategory = "cpu";
 let activeView = "picker";
 let expandedProductId = "";
-let showAllProducts = false;
+let smartFiltering = true;
+let searchQuery = "";
 let savedQuotes = [];
 let noticeTimer = 0;
 
@@ -380,23 +381,28 @@ function renderPicker() {
   const activeMeta = CATEGORY_META[activeCategory];
   const visibleProducts = getProductsForActiveCategory();
   const allProducts = products.filter((product) => product.category === activeCategory);
+  const compatibleCount = getAnalyzedProductsForActiveCategory().filter(({ analysis }) => !analysis.hard.length).length;
 
   els.workspace.innerHTML = `
     <div class="view-header">
       <div class="view-heading">
         <div>
           <h1>${activeMeta.label}</h1>
-          <p>${visibleProducts.length}/${allProducts.length} 個品項可選</p>
+          <p>${renderResultSummary(visibleProducts.length, compatibleCount, allProducts.length)}</p>
         </div>
-        <button class="secondary-button" type="button" data-action="compatible-filter">相容款</button>
+        <button class="secondary-button" type="button" data-action="compatible-filter">${smartFiltering ? "智能篩選中" : "開啟智能篩選"}</button>
       </div>
       <div class="category-tabs" aria-label="零件類別">
         ${categories.map(renderCategoryTab).join("")}
       </div>
       <div class="toolbar">
+        <label class="search-control">
+          <span>搜尋產品</span>
+          <input id="productSearch" type="search" value="${escapeHtml(searchQuery)}" placeholder="輸入品牌、型號或規格" autocomplete="off" />
+        </label>
         <label class="switch-control">
-          <input type="checkbox" id="showAllProducts" ${showAllProducts ? "checked" : ""} />
-          <span>顯示全部</span>
+          <input type="checkbox" id="smartFiltering" ${smartFiltering ? "checked" : ""} />
+          <span>智能篩選</span>
         </label>
         <span class="status-pill">${selectedParts[activeCategory] ? "已選" : "未選"}</span>
       </div>
@@ -414,15 +420,29 @@ function renderPicker() {
     });
   });
 
-  els.workspace.querySelector("#showAllProducts")?.addEventListener("change", (event) => {
-    showAllProducts = event.target.checked;
+  const searchInput = els.workspace.querySelector("#productSearch");
+  const updateSearch = (event) => {
+    searchQuery = event.target.value;
+    expandedProductId = "";
     render();
+  };
+  searchInput?.addEventListener("input", updateSearch);
+  searchInput?.addEventListener("search", updateSearch);
+  searchInput?.addEventListener("change", updateSearch);
+
+  els.workspace.querySelector("#smartFiltering")?.addEventListener("change", (event) => {
+    smartFiltering = event.target.checked;
+    render();
+    showNotice(
+      smartFiltering ? "success" : "warning",
+      smartFiltering ? "已開啟智能篩選，僅顯示可直接加入的相容品項。" : "已關閉智能篩選，不相容品項仍會標示提醒。"
+    );
   });
 
   els.workspace.querySelector("[data-action='compatible-filter']")?.addEventListener("click", () => {
-    showAllProducts = false;
+    smartFiltering = true;
     render();
-    showNotice("success", "已切回相容款清單。");
+    showNotice("success", "已開啟智能篩選。");
   });
 
   bindProductCardEvents();
@@ -444,11 +464,40 @@ function renderCategoryTab(category) {
 }
 
 function getProductsForActiveCategory() {
+  return getAnalyzedProductsForActiveCategory()
+    .filter(({ analysis }) => !smartFiltering || !analysis.hard.length)
+    .sort((a, b) => Number(Boolean(a.analysis.hard.length)) - Number(Boolean(b.analysis.hard.length)) || b.product.stock - a.product.stock);
+}
+
+function getAnalyzedProductsForActiveCategory() {
+  const query = normalizeSearchText(searchQuery);
   return products
     .filter((product) => product.category === activeCategory)
-    .map((product) => ({ product, analysis: analyzeCandidate(product) }))
-    .filter(({ analysis }) => showAllProducts || !analysis.hard.length)
-    .sort((a, b) => Number(Boolean(a.analysis.hard.length)) - Number(Boolean(b.analysis.hard.length)) || b.product.stock - a.product.stock);
+    .filter((product) => !query || getProductSearchText(product).includes(query))
+    .map((product) => ({ product, analysis: analyzeCandidate(product) }));
+}
+
+function getProductSearchText(product) {
+  return normalizeSearchText([
+    product.id,
+    product.category,
+    product.categoryLabel,
+    CATEGORY_META[product.category]?.label,
+    product.name,
+    product.price,
+    product.stock,
+    product.tags.join(" "),
+    product.badges.join(" "),
+  ].join(" "));
+}
+
+function normalizeSearchText(value) {
+  return String(value || "").trim().toLocaleLowerCase();
+}
+
+function renderResultSummary(visibleCount, compatibleCount, totalCount) {
+  const searchPart = searchQuery.trim() ? `搜尋符合 ${visibleCount} 項` : `${visibleCount}/${totalCount} 個品項可選`;
+  return smartFiltering ? `${searchPart}，相容 ${compatibleCount} 項` : `${searchPart}，智能篩選已關閉`;
 }
 
 function renderProductCard(entry) {
@@ -456,6 +505,7 @@ function renderProductCard(entry) {
   const selected = selectedParts[product.category]?.id === product.id;
   const expanded = expandedProductId === product.id;
   const hardIssues = analysis.hard.length > 0;
+  const blocked = shouldBlockAdd(analysis);
   const specs = getKeySpecs(product);
 
   return `
@@ -480,7 +530,7 @@ function renderProductCard(entry) {
         </div>
         <div class="card-actions">
           <button class="ghost-button" type="button" data-expand-product="${product.id}">${expanded ? "收合" : "預覽"}</button>
-          <button class="primary-button" type="button" data-add-product="${product.id}" ${hardIssues ? "disabled" : ""}>${selected ? "已加入" : "加入估價單"}</button>
+          <button class="primary-button" type="button" data-add-product="${product.id}" ${blocked ? "disabled" : ""}>${selected ? "已加入" : "加入估價單"}</button>
         </div>
       </div>
       ${expanded ? renderProductExtra(product, analysis) : ""}
@@ -501,6 +551,7 @@ function renderBadges(product) {
 }
 
 function renderProductExtra(product, analysis) {
+  const blocked = shouldBlockAdd(analysis);
   return `
     <div class="product-extra">
       <div class="mini-gallery" aria-label="產品預覽圖">
@@ -519,7 +570,7 @@ function renderProductExtra(product, analysis) {
       ${renderIssues(analysis)}
       <div class="detail-actions">
         <button class="secondary-button" type="button" data-detail-product="${product.id}">查看完整介紹</button>
-        <button class="primary-button" type="button" data-add-product="${product.id}" ${analysis.hard.length ? "disabled" : ""}>加入估價單</button>
+        <button class="primary-button" type="button" data-add-product="${product.id}" ${blocked ? "disabled" : ""}>加入估價單</button>
       </div>
     </div>
   `;
@@ -537,7 +588,7 @@ function renderEmptyProductState() {
   return `
     <div class="empty-state">
       <h2>沒有符合條件的品項</h2>
-      <p>可切換顯示全部查看不相容原因。</p>
+      <p>${searchQuery.trim() ? "請換個品牌、型號或規格搜尋。" : "可關閉智能篩選查看不相容原因。"}</p>
     </div>
   `;
 }
@@ -653,11 +704,11 @@ function checkBuild(parts, candidate = null) {
   }
 
   if (candidate?.restriction === "bundle_only" && candidate.category === "gpu" && !(parts.cpu && parts.motherboard)) {
-    hard.push({ categories: ["gpu"], message: "此顯示卡限組裝銷售，需先選擇 CPU 與主機板。" });
+    hard.push({ categories: ["gpu"], policy: true, message: "此顯示卡限組裝銷售，需先選擇 CPU 與主機板。" });
   }
 
   if (candidate?.restriction === "bundle_only" && candidate.category === "accessory" && !parts.gpu) {
-    hard.push({ categories: ["accessory"], message: "此配件限搭配整機或顯示卡估價單。" });
+    hard.push({ categories: ["accessory"], policy: true, message: "此配件限搭配整機或顯示卡估價單。" });
   }
 
   if (cpu && gpu && psu) {
@@ -679,9 +730,8 @@ function addProduct(productId) {
   if (!product) return;
 
   const analysis = analyzeCandidate(product);
-  if (analysis.hard.length) {
+  if (shouldBlockAdd(analysis)) {
     showNotice("danger", analysis.hard[0].message);
-    showAllProducts = true;
     expandedProductId = product.id;
     render();
     return;
@@ -690,8 +740,15 @@ function addProduct(productId) {
   selectedParts = { ...selectedParts, [product.category]: product };
   expandedProductId = product.id;
   const buildIssues = checkBuild(selectedParts);
-  showNotice(buildIssues.soft.length ? "warning" : "success", buildIssues.soft[0]?.message || `已加入 ${product.name}`);
+  const noticeType = analysis.hard.length || buildIssues.soft.length ? "warning" : "success";
+  const notice = analysis.hard[0]?.message || buildIssues.soft[0]?.message || `已加入 ${product.name}`;
+  showNotice(noticeType, notice);
   render();
+}
+
+function shouldBlockAdd(analysis) {
+  if (smartFiltering) return analysis.hard.length > 0;
+  return analysis.hard.some((issue) => issue.policy === true);
 }
 
 function removePart(category) {
@@ -807,7 +864,7 @@ function openProductDialog(productId) {
           </table>
         </section>
         <div class="detail-actions">
-          <button class="primary-button" type="button" data-dialog-add="${product.id}" ${analysis.hard.length ? "disabled" : ""}>加入估價單</button>
+          <button class="primary-button" type="button" data-dialog-add="${product.id}" ${shouldBlockAdd(analysis) ? "disabled" : ""}>加入估價單</button>
           <button class="ghost-button" type="button" data-close-dialog>關閉</button>
         </div>
       </div>

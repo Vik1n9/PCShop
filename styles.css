@@ -336,12 +336,42 @@ body[data-view="overview"] .workspace {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 10px;
+}
+
+.search-control {
+  position: relative;
+  display: grid;
+  flex: 1 1 260px;
+  gap: 7px;
+  min-width: min(100%, 260px);
+}
+
+.search-control span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.search-control input {
+  width: 100%;
+  min-height: var(--tap);
+  padding: 10px 13px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: var(--canvas);
+  color: var(--ink-deep);
+}
+
+.search-control input::placeholder {
+  color: var(--muted);
 }
 
 .switch-control {
   display: inline-flex;
   align-items: center;
+  flex: 0 0 auto;
   min-height: var(--tap);
   gap: 9px;
   color: var(--muted);
@@ -529,6 +559,7 @@ body[data-view="overview"] .workspace {
 
 .status-pill {
   padding: 7px 10px;
+  flex: 0 0 auto;
   background: var(--surface-blue);
   color: var(--primary-deep);
 }
