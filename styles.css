@@ -368,22 +368,6 @@ body[data-view="overview"] .workspace {
   color: var(--muted);
 }
 
-.switch-control {
-  display: inline-flex;
-  align-items: center;
-  flex: 0 0 auto;
-  min-height: var(--tap);
-  gap: 9px;
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-.switch-control input {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--primary);
-}
-
 .product-list {
   display: grid;
   gap: 12px;
@@ -521,6 +505,7 @@ body[data-view="overview"] .workspace {
 
 .badge,
 .chip,
+.filter-state-button,
 .status-pill {
   display: inline-flex;
   align-items: center;
@@ -562,6 +547,35 @@ body[data-view="overview"] .workspace {
   flex: 0 0 auto;
   background: var(--surface-blue);
   color: var(--primary-deep);
+}
+
+.filter-state-button {
+  justify-content: center;
+  flex: 0 0 auto;
+  min-height: var(--tap);
+  padding: 9px 14px;
+  border: 1px solid var(--hairline);
+  background: var(--canvas);
+  color: var(--muted);
+  transition: border-color 160ms cubic-bezier(0.22, 1, 0.36, 1), background-color 160ms cubic-bezier(0.22, 1, 0.36, 1), color 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.filter-state-button:hover {
+  border-color: oklch(0.68 0.055 250);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.filter-state-button.is-on {
+  border-color: oklch(0.76 0.08 150);
+  background: var(--success-soft);
+  color: oklch(0.32 0.09 150);
+}
+
+.filter-state-button.is-off {
+  border-color: oklch(0.8 0.12 82);
+  background: var(--warning-soft);
+  color: oklch(0.34 0.085 72);
 }
 
 .stock-line {
