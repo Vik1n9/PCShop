@@ -44,3 +44,113 @@ p042,accessory,其他零件,Noctua NT-H1 散熱膏,35,9,"Thermal Paste; 3.5g; No
 p043,accessory,其他零件,Asiahorse 風扇集線器 8埠,25,12,"PWM Hub; 8-port; SATA Power; 4-pin Fans","",,neutral
 p044,accessory,其他零件,TP-Link Archer TX50E Wi-Fi 6 網卡,14,49,"PCIe x1; Wi-Fi 6; Bluetooth 5.2; MU-MIMO","",,neutral
 p045,accessory,其他零件,CableMod PCIe 4.0 延長線 20cm,10,39,"PCIe 4.0 x16; Riser Cable; Length 20cm; Vertical GPU","限組裝",bundle_only,neutral
+p046,cpu,處理器,AMD Ryzen 5 5500,30,125,"Socket AM4; TDP 65W; 6C12T; DDR4-3200","入門",,amber
+p047,cpu,處理器,AMD Ryzen 7 5700X,18,210,"Socket AM4; TDP 65W; 8C16T; DDR4-3200","",,amber
+p048,cpu,處理器,Intel Core i3-13100F,28,110,"LGA1700; TDP 60W; 4C8T; DDR4/DDR5","入門",,amber
+p049,cpu,處理器,Intel Core i5-13600K,14,320,"LGA1700; TDP 125W; 14C20T; iGPU","熱銷",,amber
+p050,cpu,處理器,AMD Ryzen 9 7900X3D,6,599,"Socket AM5; TDP 120W; 12C24T; 3D V-Cache; DDR5","高效能",,amber
+p051,cpu,處理器,Intel Core i9-14900K,9,680,"LGA1700; TDP 125W; 24C32T; Max TDP 253W","高效能",,amber
+p052,cpu,處理器,AMD Ryzen 5 7600X,22,230,"Socket AM5; TDP 105W; 6C12T; DDR5","",,amber
+p053,motherboard,主機板,MSI PRO B650M-A,25,149,"Socket AM5; microATX; DDR5; PCIe 4.0","",,blue
+p054,motherboard,主機板,ASUS TUF GAMING Z790-PLUS,13,259,"LGA1700; ATX; DDR5; PCIe 5.0; WiFi 6","",,blue
+p055,motherboard,主機板,Gigabyte B760M DS3H,30,119,"LGA1700; microATX; DDR4; PCIe 4.0","入門",,blue
+p056,motherboard,主機板,ASRock B550M Steel Legend,20,139,"Socket AM4; microATX; DDR4; PCIe 4.0","",,blue
+p057,motherboard,主機板,ASUS ROG MAXIMUS Z790 HERO,6,599,"LGA1700; ATX; DDR5; PCIe 5.0; WiFi 7","高效能",,blue
+p058,motherboard,主機板,MSI MPG X670E CARBON,8,499,"Socket AM5; ATX; DDR5; PCIe 5.0","高效能",,blue
+p059,motherboard,主機板,Gigabyte A520M S2H,35,79,"Socket AM4; microATX; DDR4; PCIe 3.0","入門",,blue
+p060,gpu,顯示卡,NVIDIA RTX 3050 8GB,25,210,"Length 23cm; TDP 130W; PCIe 4.0; 8-pin","入門",,violet
+p061,gpu,顯示卡,ASUS RTX 4080 SUPER,8,1199,"Length 30cm; TDP 320W; PCIe 4.0; 16-pin; DLSS3","高效能",,violet
+p062,gpu,顯示卡,AMD Radeon RX 7700 XT,14,449,"Length 27cm; TDP 245W; PCIe 4.0; Dual 8-pin","熱銷",,violet
+p063,gpu,顯示卡,MSI RTX 4070 Ti SUPER,7,799,"Length 31cm; TDP 285W; PCIe 4.0; 16-pin","高效能",,violet
+p064,gpu,顯示卡,PowerColor RX 7600,18,269,"Length 25cm; TDP 165W; PCIe 4.0; 8-pin","",,violet
+p065,gpu,顯示卡,Zotac RTX 3060 Ti,13,359,"Length 23cm; TDP 200W; PCIe 4.0; 8-pin","",,violet
+p066,gpu,顯示卡,Gigabyte RTX 4060 AERO OC,16,399,"Length 26cm; TDP 115W; PCIe 4.0; 8-pin","白色",,violet
+p067,memory,記憶體,Corsair Vengeance RGB 32GB (2x16) DDR4 3600MHz,18,119,"DDR4; Speed 3600MHz; CL18; RGB; 2x16GB","熱銷",,green
+p068,memory,記憶體,G.Skill Ripjaws S5 16GB (2x8) DDR5 5600MHz,25,85,"DDR5; Speed 5600MHz; CL36; 2x8GB","",,green
+p069,memory,記憶體,Kingston Fury Renegade 64GB (2x32) DDR5 6000MHz,7,279,"DDR5; Speed 6000MHz; CL32; RGB; 2x32GB","大容量",,green
+p070,memory,記憶體,TEAMGROUP T-Force Delta RGB 32GB (2x16) DDR4 3200MHz,20,99,"DDR4; Speed 3200MHz; CL16; RGB; 2x16GB","",,green
+p071,memory,記憶體,Crucial Classic 8GB DDR4 2666MHz,40,35,"DDR4; Speed 2666MHz; CL19; 1x8GB","入門",,green
+p072,memory,記憶體,Patriot Viper Steel 16GB (2x8) DDR4 4400MHz,12,119,"DDR4; Speed 4400MHz; CL19; 2x8GB","",,green
+p073,storage,儲存裝置,WD Black SN850X 2TB NVMe SSD,15,169,"M.2 2280; PCIe 4.0; Read 7300MB/s; Heatsink; 2TB","高效能",,cyan
+p074,storage,儲存裝置,Samsung 990 Pro 1TB NVMe SSD,20,139,"M.2 2280; PCIe 4.0; Read 7450MB/s; TLC; 1TB","熱銷",,cyan
+p075,storage,儲存裝置,Crucial P3 Plus 500GB NVMe SSD,35,39,"M.2 2280; PCIe 4.0; Read 4700MB/s; 500GB","入門",,cyan
+p076,storage,儲存裝置,Seagate FireCuda 1TB 7200RPM HDD,22,55,"3.5-inch; SATA 6Gb/s; 1TB; 256MB Cache","",,cyan
+p077,storage,儲存裝置,Kingston NV2 4TB NVMe SSD,5,249,"M.2 2280; PCIe 4.0; Read 3500MB/s; 4TB","大容量",,cyan
+p078,storage,儲存裝置,"Silicon Power 2.5"" SATA SSD 512GB",30,34,"2.5-inch; SATA 6Gb/s; 3D NAND; 512GB","入門",,cyan
+p079,cooler,散熱器,Deepcool AK620,14,69,"Air Cooler; Dual Tower; Height 160mm; LGA1700/AM5; TDP 260W","熱銷",,red
+p080,cooler,散熱器,be quiet! Dark Rock Pro 4,8,89,"Air Cooler; Dual Tower; Height 163mm; Silent; TDP 250W","",,red
+p081,cooler,散熱器,ID-COOLING SE-214-XT,30,24,"Air Cooler; Single Tower; Height 150mm; ARGB; TDP 180W","入門",,red
+p082,cooler,散熱器,MSI MAG CORELIQUID C240,16,109,"AIO; 240mm Radiator; LGA1700/AM5; TDP 280W","",,red
+p083,cooler,散熱器,EVGA CLC 280,11,99,"AIO; 280mm Radiator; LGA1700/AM4; TDP 300W","",,red
+p084,cooler,散熱器,Lian Li Galahad II Trinity 360,9,149,"AIO; 360mm Radiator; LGA1700/AM5; RGB Fans; TDP 350W","高效能",,red
+p085,psu,電源供應器,EVGA SuperNOVA 1000W G6,7,209,"1000W; 80+ Gold; Full Modular; ATX12V","高瓦數",,slate
+p086,psu,電源供應器,ASUS ROG Thor 1200W Platinum,5,379,"1200W; 80+ Platinum; Full Modular; OLED Display","高效能",,slate
+p087,psu,電源供應器,SeaSonic S12III 500W 銅牌,25,59,"500W; 80+ Bronze; Non-Modular; ATX12V","入門",,slate
+p088,psu,電源供應器,Corsair SF750 750W 白金,12,179,"750W; 80+ Platinum; SFX; Full Modular","小型化",,slate
+p089,psu,電源供應器,Phanteks AMP 850W 金牌,14,129,"850W; 80+ Gold; Full Modular; ATX 3.0","",,slate
+p090,psu,電源供應器,SilverStone SST-ST85F-GS,9,139,"850W; 80+ Gold; Semi-Modular; Silent","",,slate
+p091,case,機殼,HYTE Y60,11,199,"ATX; Dual Chamber; Max GPU Length 37.5cm; Vertical GPU; Tempered Glass","熱銷",,teal
+p092,case,機殼,Montech AIR 1000 Premium,25,79,"ATX; Max GPU Length 34cm; Mesh Front; 4 Fans","",,teal
+p093,case,機殼,Antec P20C,18,109,"ATX; Max GPU Length 38cm; Aluminium Front; Type-C","",,teal
+p094,case,機殼,Fractal Design North,9,139,"ATX; Max GPU Length 35.5cm; Walnut Wood; Mesh Side","獨特設計",,teal
+p095,case,機殼,Corsair 4000D Airflow,22,89,"ATX; Max GPU Length 36cm; Airflow Focus; 2 Fans","熱銷",,teal
+p096,case,機殼,Lian Li O11 Dynamic EVO,14,159,"ATX; Dual Chamber; Max GPU Length 42cm; Modular","",,teal
+p097,accessory,其他零件,Arctic MX-6 散熱膏,40,12,"Thermal Paste; 4g; Non-Conductive","",,neutral
+p098,accessory,其他零件,Phanteks 風扇集線器 6埠,30,9,"PWM Hub; 6-port; SATA Power","入門",,neutral
+p099,accessory,其他零件,Intel Wi-Fi 6E AX210 網卡,18,35,"PCIe x1; Wi-Fi 6E; Bluetooth 5.3; Tri-Band","",,neutral
+p100,accessory,其他零件,EZDIY-FAB PCIe 4.0 延長線 30cm,12,49,"PCIe 4.0 x16; Riser Cable; Length 30cm","限組裝",bundle_only,neutral
+p101,accessory,其他零件,NZXT USB 2.0 內部集線器,22,19,"USB 2.0 Hub; Internal; 4-port; Molex Power","",,neutral
+p102,accessory,其他零件,Corsair Commander Pro,8,69,"Fan & RGB Controller; 6 Fans; 2 LED Channels; USB","",,neutral
+p103,cpu,處理器,Intel Core i7-12700KF,17,289,"LGA1700; TDP 125W; 12C20T; DDR4/DDR5","降價中",,amber
+p104,gpu,顯示卡,AMD Radeon RX 6600,21,239,"Length 24cm; TDP 132W; PCIe 4.0; 8-pin","入門",,violet
+p105,memory,記憶體,Patriot Viper Venom 32GB (2x16) DDR5 6200MHz,10,139,"DDR5; Speed 6200MHz; CL32; RGB; 2x16GB","",,green
+p106,cpu,處理器,AMD Ryzen 3 4100,30,89,"Socket AM4; TDP 65W; 4C8T; DDR4-3200","入門",,amber
+p107,cpu,處理器,Intel Pentium Gold G7400,25,75,"LGA1700; TDP 46W; 2C4T; DDR4/DDR5; iGPU","入門",,amber
+p108,cpu,處理器,AMD Ryzen 7 5800X,12,250,"Socket AM4; TDP 105W; 8C16T; DDR4-3200","高性價比",,amber
+p109,cpu,處理器,Intel Core i9-12900KS,6,550,"LGA1700; TDP 150W; 16C24T; Max TDP 241W","旗艦",,amber
+p110,cpu,處理器,AMD Threadripper 3960X,3,1400,"sTRX4; TDP 280W; 24C48T; DDR4; PCIe 4.0","工作站",,amber
+p111,cpu,處理器,Intel Core i5-12400,28,175,"LGA1700; TDP 65W; 6C12T; iGPU; DDR4/DDR5","主流",,amber
+p112,cpu,處理器,AMD Ryzen 5 8600G,18,229,"Socket AM5; TDP 65W; 6C12T; RDNA 3 iGPU; DDR5","內顯強",,amber
+p113,motherboard,主機板,ASUS PRIME A520M-K,35,69,"Socket AM4; microATX; DDR4; PCIe 3.0","入門",,blue
+p114,motherboard,主機板,MSI B550-A PRO,22,139,"Socket AM4; ATX; DDR4; PCIe 4.0","主流",,blue
+p115,motherboard,主機板,Gigabyte TRX40 AORUS MASTER,4,699,"sTRX4; E-ATX; DDR4; PCIe 4.0; 8 DIMMs","工作站",,blue
+p116,motherboard,主機板,ASRock Z790 PG-ITX/TB4,8,299,"LGA1700; Mini-ITX; DDR5; Thunderbolt 4","小鋼炮",,blue
+p117,motherboard,主機板,ASUS ROG STRIX X670E-I,6,479,"Socket AM5; Mini-ITX; DDR5; PCIe 5.0; USB4","高階ITX",,blue
+p118,motherboard,主機板,MSI PRO H610M-G,40,89,"LGA1700; microATX; DDR4; PCIe 3.0","入門",,blue
+p119,gpu,顯示卡,NVIDIA GT 1030 2GB,20,89,"Length 15cm; TDP 30W; PCIe 3.0; Passive/Silent","入門; 靜音",,violet
+p120,gpu,顯示卡,AMD Radeon RX 6500 XT,18,169,"Length 20cm; TDP 107W; PCIe 4.0; 4GB; 6-pin","入門",,violet
+p121,gpu,顯示卡,Intel Arc A750 8GB,14,249,"Length 27cm; TDP 225W; PCIe 4.0; 8-pin; AV1","中階",,violet
+p122,gpu,顯示卡,NVIDIA RTX 4090 Founders Edition,3,1599,"Length 30.4cm; TDP 450W; PCIe 4.0; 12VHPWR","極致效能",limited_edition,violet
+p123,gpu,顯示卡,ASUS RTX 3060 Ti White Edition,9,399,"Length 26cm; TDP 200W; PCIe 4.0; 8-pin","白色; 熱銷",,violet
+p124,gpu,顯示卡,Sapphire RX 7900 GRE,10,649,"Length 28cm; TDP 260W; PCIe 4.0; Dual 8-pin","高階",,violet
+p125,gpu,顯示卡,MSI RTX 4060 Ventus 2X Black,22,299,"Length 21.5cm; TDP 115W; PCIe 4.0; 8-pin","節能",,violet
+p126,memory,記憶體,Kingston ValueRAM 8GB DDR4 2666MHz,50,28,"DDR4; Speed 2666MHz; CL19; 1x8GB","入門",,green
+p127,memory,記憶體,TeamGroup Elite 16GB DDR4 3200MHz,35,49,"DDR4; Speed 3200MHz; CL22; 1x16GB","",,green
+p128,memory,記憶體,G.Skill Trident Z Royal 32GB (2x16) DDR4 4000MHz,8,189,"DDR4; Speed 4000MHz; CL18; Gold/Silver; RGB","旗艦",,green
+p129,memory,記憶體,Corsair Dominator Titanium 48GB (2x24) DDR5 7200MHz,5,299,"DDR5; Speed 7200MHz; CL34; RGB; ECC","極速",,green
+p130,memory,記憶體,Patriot Signature Line 4GB DDR3 1600MHz,40,15,"DDR3; Speed 1600MHz; CL11; 1x4GB","老平台",,green
+p131,memory,記憶體,Silicon Power XPOWER Zenith 64GB (2x32) DDR5 6000MHz,6,199,"DDR5; Speed 6000MHz; CL30; RGB","大容量",,green
+p132,storage,儲存裝置,Patriot P300 128GB M.2 PCIe 3.0,30,23,"M.2 2280; PCIe 3.0; Read 1600MB/s; 128GB","入門",,cyan
+p133,storage,儲存裝置,Samsung 870 EVO 250GB SATA SSD,25,49,"2.5-inch; SATA 6Gb/s; 250GB; TLC","",,cyan
+p134,storage,儲存裝置,WD Gold 4TB Enterprise HDD,8,159,"3.5-inch; SATA 6Gb/s; 7200RPM; CMR; 256MB","企業級",,cyan
+p135,storage,儲存裝置,Seagate IronWolf Pro 8TB NAS HDD,6,239,"3.5-inch; SATA 6Gb/s; 7200RPM; NAS; 五年保","NAS專用",,cyan
+p136,storage,儲存裝置,Corsair MP700 1TB PCIe 5.0 SSD,7,179,"M.2 2280; PCIe 5.0; Read 9500MB/s; Heatsink","極速",,cyan
+p137,storage,儲存裝置,Intel Optane 905P 380GB,2,399,"U.2; PCIe 3.0; Read 2600MB/s; 超高IOPS","伺服器",bundle_only,cyan
+p138,cooler,散熱器,AMD Wraith Stealth,40,15,"Air Cooler; Low Profile; TDP 65W; AM4","原廠; 入門",,red
+p139,cooler,散熱器,Thermalright Peerless Assassin 120,20,39,"Air Cooler; Dual Tower; Height 157mm; LGA1700/AM5; TDP 265W","高性價比",,red
+p140,cooler,散熱器,SilverStone SST-AR12,25,29,"Air Cooler; Single Tower; Height 148mm; TDP 130W","靜音",,red
+p141,cooler,散熱器,Corsair H100i RGB Elite,14,139,"AIO; 240mm Radiator; LGA1700/AM5; TDP 250W","",,red
+p142,cooler,散熱器,Alphacool Eisbaer Pro 360,5,199,"AIO; 360mm Radiator; Expandable; LGA1700/AM5","高階DIY",,red
+p143,cooler,散熱器,Noctua NH-L9i,20,49,"Air Cooler; Low Profile; Height 37mm; LGA1700; TDP 65W","ITX",,red
+p144,psu,電源供應器,EVGA 400 N1 400W,30,39,"400W; 80+白牌; Non-Modular; ATX12V","入門",,slate
+p145,psu,電源供應器,be quiet! Pure Power 12 M 650W,17,99,"650W; 80+ Gold; Full Modular; ATX 3.0","靜音",,slate
+p146,psu,電源供應器,Corsair AX1600i,2,599,"1600W; 80+ Titanium; Full Modular; Digital","極致",,slate
+p147,psu,電源供應器,FSP Dagger Pro 650W SFX,12,129,"650W; 80+ Gold; SFX; Full Modular","小型化",,slate
+p148,psu,電源供應器,SilverStone SX1000 Platinum SFX-L,4,279,"1000W; 80+ Platinum; SFX-L; Full Modular","高瓦SFX",,slate
+p149,case,機殼,Jonsbo D31 Mesh,15,99,"ATX/microATX; Max GPU Length 33cm; 副螢幕選配; 4 Fans","",,teal
+p150,case,機殼,SilverStone SST-RVZ03,8,129,"Mini-ITX; Slim; Max GPU Length 33cm; Console Style","HTPC",,teal
+p151,case,機殼,Phanteks Eclipse G500A,10,139,"ATX; Max GPU Length 43.5cm; 4 x 140mm Fans; Type-C","高氣流",,teal
+p152,case,機殼,SUGO 16 (SilverStone),12,79,"Mini-ITX; Max GPU Length 27cm; 8.7L; SFX","",,teal
+p153,case,機殼,Thermaltake Tower 500,6,199,"E-ATX; Vertical Design; Max GPU Length 35cm; 全景玻璃","特殊造型",,teal
+p154,accessory,其他零件,Noctua NA-SRC7 降壓線,30,8,"Low-Noise Adapter; 4-pin; 2 pieces","",,neutral
+p155,accessory,其他零件,Lian Li Strimer Plus V2 24-pin RGB延長線,14,59,"RGB Power Extension; Motherboard 24-pin; Addressable RGB","發光線材",,neutral
