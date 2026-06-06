@@ -883,6 +883,48 @@ body[data-view="overview"] .workspace {
   overflow-wrap: anywhere;
 }
 
+.build-specs {
+  display: grid;
+  gap: 10px;
+  margin-top: 2px;
+  padding: 14px 0 4px;
+  border-top: 1px solid var(--hairline-soft);
+}
+
+.build-specs h3 {
+  margin: 0;
+  color: var(--ink-deep);
+  font-size: 0.95rem;
+  font-weight: 750;
+}
+
+.build-specs dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.build-specs div {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 10px;
+}
+
+.build-specs dt {
+  color: var(--ink-deep);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.build-specs dd {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 .quote-total {
   display: grid;
   gap: 12px;

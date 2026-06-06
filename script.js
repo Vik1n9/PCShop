@@ -282,9 +282,10 @@ function renderOverview(issues) {
       ${REQUIRED_CATEGORIES.map(renderPartSlot).join("")}
     </div>
     ${renderIssues(issues)}
-    <div class="selected-list">
-      ${renderSelectedRows()}
-    </div>
+    <section class="build-specs" aria-label="目前電腦規格">
+      <h3>目前電腦規格</h3>
+      ${renderBuildSpecsText()}
+    </section>
     <div class="quote-total">
       <strong><span>目前總額</span><output>${formatPrice(total)}</output></strong>
       <label class="quote-name">
@@ -349,33 +350,42 @@ function renderPartSlot(category) {
   `;
 }
 
-function renderSelectedRows() {
-  const rows = REQUIRED_CATEGORIES
-    .filter((category) => selectedParts[category])
-    .map((category) => {
-      const part = selectedParts[category];
-      return `
-        <article class="selected-row">
-          <div class="selected-row-header">
-            <div>
-              <h3>${CATEGORY_META[category].label}</h3>
-              <p>${escapeHtml(part.name)}</p>
-            </div>
-            <strong>${formatPrice(part.price)}</strong>
+function renderBuildSpecsText() {
+  return `
+    <dl>
+      ${REQUIRED_CATEGORIES.map((category) => {
+        const part = selectedParts[category];
+        return `
+          <div>
+            <dt>${CATEGORY_META[category].label}</dt>
+            <dd>${part ? escapeHtml(formatBuildSpecLine(part)) : "未選"}</dd>
           </div>
-          <div class="card-actions">
-            <button class="ghost-button" type="button" data-change-category="${category}">更換</button>
-            <button class="danger-button" type="button" data-remove-category="${category}">移除</button>
-          </div>
-        </article>
-      `;
-    });
+        `;
+      }).join("")}
+    </dl>
+  `;
+}
 
-  if (!rows.length) {
-    return `<div class="empty-state"><h2>尚未選擇零件</h2><p>核心零件會顯示在這裡。</p></div>`;
-  }
+function formatBuildSpecLine(product) {
+  const specText = getSpecItems(product)
+    .filter(([label, value]) => label !== "規格" || !isRedundantSpecTag(product, value))
+    .map(([label, value]) => `${label} ${value}`)
+    .join("，");
+  return specText || product.tags.slice(0, 4).join("，") || "未標示規格";
+}
 
-  return rows.join("");
+function isRedundantSpecTag(product, value) {
+  const normalized = value.toUpperCase();
+  const { specs } = product;
+  return (
+    specs.sockets.some((socket) => normalized.includes(socket)) ||
+    specs.memoryTypes.some((memoryType) => normalized.includes(memoryType)) ||
+    specs.formFactors.some((formFactor) => normalized.includes(formFactor.toUpperCase())) ||
+    (specs.tdp && normalized === `TDP ${specs.tdp}W`) ||
+    (specs.peakTdp && normalized === `MAX TDP ${specs.peakTdp}W`) ||
+    (specs.lengthCm && normalized === `LENGTH ${specs.lengthCm}CM`) ||
+    (specs.wattage && normalized === `${specs.wattage}W`)
+  );
 }
 
 function renderWorkspace() {
