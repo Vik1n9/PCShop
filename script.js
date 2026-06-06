@@ -334,6 +334,7 @@ function renderPartSlot(category) {
     <button class="part-slot ${part ? "is-filled" : ""}" type="button" data-slot-category="${category}">
       <b>${meta.label}</b>
       <span>${part ? escapeHtml(part.name) : "未選"}</span>
+      ${part ? `<strong>${formatPrice(part.price)}</strong>` : ""}
     </button>
   `;
 }
