@@ -11,6 +11,8 @@ const REQUIRED_CATEGORIES = [
   "cooler",
 ];
 
+const SPEC_SUMMARY_CATEGORIES = [...REQUIRED_CATEGORIES, "accessory"];
+
 const CATEGORY_META = {
   cpu: { label: "處理器", short: "CPU", icon: "CPU" },
   motherboard: { label: "主機板", short: "MB", icon: "MB" },
@@ -353,17 +355,30 @@ function renderPartSlot(category) {
 function renderBuildSpecsText() {
   return `
     <dl>
-      ${REQUIRED_CATEGORIES.map((category) => {
+      ${SPEC_SUMMARY_CATEGORIES.map((category) => {
         const part = selectedParts[category];
         return `
           <div>
-            <dt>${CATEGORY_META[category].label}</dt>
-            <dd>${part ? escapeHtml(formatBuildSpecLine(part)) : "未選"}</dd>
+            <dt>${escapeHtml(getSpecSummaryLabel(category))}</dt>
+            <dd>${part ? escapeHtml(formatSpecSummaryLine(category, part)) : "未選"}</dd>
           </div>
         `;
       }).join("")}
     </dl>
   `;
+}
+
+function getSpecSummaryLabel(category) {
+  return category === "accessory" ? "其他" : CATEGORY_META[category].label;
+}
+
+function formatSpecSummaryLine(category, product) {
+  if (category === "accessory") {
+    const specText = formatBuildSpecLine(product);
+    return `${product.name} ${formatPrice(product.price)}${specText ? `，${specText}` : ""}`;
+  }
+
+  return formatBuildSpecLine(product);
 }
 
 function formatBuildSpecLine(product) {
@@ -1030,6 +1045,8 @@ function formatQuoteText(parts, name) {
     const part = parts[category];
     lines.push(`${CATEGORY_META[category].label}：${part ? `${part.name} ${formatPrice(part.price)}` : "未選"}`);
   });
+  const accessory = parts.accessory;
+  lines.push(`其他：${accessory ? `${accessory.name} ${formatPrice(accessory.price)}` : "未選"}`);
   return lines.join("\n");
 }
 
