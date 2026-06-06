@@ -13,6 +13,7 @@ Build a mobile-first PC assembly quotation website that helps consumers who are 
 **Core Objectives**  
 - Use internal tags and structured compatibility rules to automate smart filtering and conflict prevention – eliminating socket mismatches, size overflows, insufficient wattage, etc.  
 - Provide an intuitive assembly progress visualization showing selected and missing parts, reducing the user’s memory load.  
+- Filled assembly progress blocks must include direct replace and remove actions, so users can correct the build from the progress area itself.  
 - Any selected part must show an immediate product image preview, with access to full illustrated details without leaving the quotation flow.  
 - Smooth mobile operation – all components and gestures designed for thumb-friendly zones; desktop provides a denser multi-column view.  
 - Admin panel can control frontend behavior via dynamic tags (e.g., bundle-only, promo badges) without any frontend code changes.
@@ -64,6 +65,8 @@ Build a mobile-first PC assembly quotation website that helps consumers who are 
 ### 3.2 Admin Backend
 - Product data management  
   - Each part requires structured compatibility fields (CPU socket, RAM type, max GPU length, etc.) and can have multiple internal tags.  
+  - Each product can provide `description` (or `details`) for the short explanatory copy shown beneath the product name in the picker list.  
+  - Each product can provide `official_url` (or `url`) for the “Product official site” button. Production data should use exact manufacturer product pages; demo data may fall back to manufacturer search pages only when no exact URL exists.  
   - Image upload (main image, carousel, long marketing images).  
 - Tag management  
   - Define tag keys (e.g., bundle_only, hot_sale, discontinued) with types (boolean, date, text).  
@@ -179,20 +182,22 @@ For multi-value fields (e.g., case supports multiple motherboard form factors), 
 ### 6.2 Part Picker Page Interactions
 - Horizontal scrollable category chips at the top (CPU, MB, …) – current category highlighted.  
 - Smart filtering appears as a clickable status control in the picker toolbar. Tapping the status switches between enabled and disabled states; the UI must not present a second checkbox or separate smart-filter option.
-- Product list as vertical card stream. Each card shows:  
-  - Left: product thumbnail (3:2 ratio)  
-  - Name, price, three key compatibility specs (e.g., LGA1700, DDR5, ATX)  
-  - Top-right badge area – rendered from internal tags (e.g., “Hot”, “Price drop”, “Assembly only”)  
+- Product list as vertical PC-builder-style row stream. Each row shows:  
+  - Row layout sized to this site’s content width rather than copied at full reference-site proportions.  
+  - Product name as the primary line. The collapsed list should not repeat full spec tables or large image tiles.  
+  - Price and actions grouped on the right when space allows; on small screens actions wrap below the description.  
+  - Short description below the product name, sourced from `description` / `details` when available, with compact stock and key-spec context below it.  
+  - A “Product official site” link button that opens `official_url` / `url` in a new tab, allowing users to verify manufacturer details themselves.  
+  - Badge area rendered from internal tags (e.g., “Hot”, “Price drop”, “Assembly only”).  
 - Tap on card: inline expansion – card height extends to show:  
-  - Image carousel (swipeable, up to 5 images)  
-  - Structured spec summary (icon + text, e.g., length comparison)  
+  - Expanded description and structured spec summary (icon + text, e.g., length comparison)  
   - Buttons: “View full details” and “Add to quote”  
 - Tap “View full details”: slides up a full-screen overlay containing marketing long image, complete spec table, dynamic compatibility notes (e.g., “This GPU fits your current case”). Closing the overlay leaves the card expanded – user can then decide to add.
 
 ### 6.3 Assembly Progress Overview Page
 - Centered around a simplified motherboard line-art. Selected parts light up in colour; missing positions show dotted outline with category name.  
 - Tap any position to jump directly to that part picker.  
-- Below: list of selected parts – long-press to remove or replace.  
+- Each selected progress block exposes replace and remove actions directly. Below it, the selected-parts list may repeat replace/remove actions for clarity, but removal must not depend on long-press.  
 - Clearly shown total price and “Save quotation” button.
 
 ### 6.4 Conflict & Notification Presentation
@@ -203,7 +208,7 @@ For multi-value fields (e.g., case supports multiple motherboard form factors), 
 ### 6.5 Desktop Companion Layout
 - When screen width ≥ 1024px, interface automatically switches to a two-column layout:  
   - Left column (40%): Assembly progress overview (fixed), including interactive exploded view and part list.  
-  - Right column (60%): Part picker – products shown in a grid; detail expansion uses a right-side floating panel that does not obscure the main list.  
+  - Right column (60%): Part picker – products shown as a single PC-builder-style vertical list that fits the available width; detail expansion stays inline and does not obscure the main list.  
 - No hover-dependent interactions – all expansion requires a tap.
 
 ---

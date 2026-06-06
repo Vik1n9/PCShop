@@ -150,6 +150,8 @@ function normalizeProduct(row) {
     name: row.name,
     stock: Number(row.stock) || 0,
     price: Number(row.price) || 0,
+    description: row.description || row.details || "",
+    officialUrl: row.official_url || row.url || "",
     tags,
     badges,
     restriction: row.restriction,
@@ -331,11 +333,19 @@ function renderPartSlot(category) {
   const meta = CATEGORY_META[category];
   const part = selectedParts[category];
   return `
-    <button class="part-slot ${part ? "is-filled" : ""}" type="button" data-slot-category="${category}">
-      <b>${meta.label}</b>
-      <span>${part ? escapeHtml(part.name) : "未選"}</span>
-      ${part ? `<strong>${formatPrice(part.price)}</strong>` : ""}
-    </button>
+    <div class="part-slot ${part ? "is-filled" : ""}">
+      <button class="part-slot-main" type="button" data-slot-category="${category}" aria-label="${part ? `更換${meta.label}` : `選擇${meta.label}`}">
+        <b>${meta.label}</b>
+        <span>${part ? escapeHtml(part.name) : "未選"}</span>
+        ${part ? `<strong>${formatPrice(part.price)}</strong>` : ""}
+      </button>
+      ${part ? `
+        <div class="slot-actions" aria-label="${meta.label}操作">
+          <button class="slot-action" type="button" data-change-category="${category}">更換</button>
+          <button class="slot-action is-danger" type="button" data-remove-category="${category}">移除</button>
+        </div>
+      ` : ""}
+    </div>
   `;
 }
 
@@ -485,6 +495,7 @@ function getProductSearchText(product) {
     product.name,
     product.price,
     product.stock,
+    product.description,
     product.tags.join(" "),
     product.badges.join(" "),
   ].join(" "));
@@ -506,29 +517,26 @@ function renderProductCard(entry) {
   const hardIssues = analysis.hard.length > 0;
   const blocked = shouldBlockAdd(analysis);
   const specs = getKeySpecs(product);
+  const officialUrl = getProductOfficialUrl(product);
 
   return `
     <article class="product-card ${hardIssues ? "is-incompatible" : ""} ${selected ? "is-selected" : ""} ${expanded ? "is-expanded" : ""}">
       <div class="product-summary">
-        <div class="product-art tone-${escapeHtml(product.tone)}" aria-hidden="true">
-          <span>${CATEGORY_META[product.category].icon}</span>
-        </div>
         <div class="product-main">
           <div class="product-title-line">
             <h3>${escapeHtml(product.name)}</h3>
             <strong class="price">${formatPrice(product.price)}</strong>
           </div>
+          <p class="product-description">${escapeHtml(getProductDescription(product, specs))}</p>
           <div class="badges">
             ${renderBadges(product)}
             ${product.stock <= 8 ? `<span class="badge is-muted">低庫存</span>` : ""}
           </div>
-          <div class="spec-chips">
-            ${specs.map((spec) => `<span class="chip">${escapeHtml(spec)}</span>`).join("")}
-          </div>
-          <p class="stock-line">庫存 ${product.stock}</p>
+          <p class="stock-line">庫存 ${product.stock}${specs.length ? ` · ${specs.map(escapeHtml).join(" · ")}` : ""}</p>
         </div>
         <div class="card-actions">
-          <button class="ghost-button" type="button" data-expand-product="${product.id}">${expanded ? "收合" : "預覽"}</button>
+          <a class="ghost-button official-link" href="${escapeHtml(officialUrl)}" target="_blank" rel="noopener noreferrer">產品官網</a>
+          <button class="ghost-button" type="button" data-expand-product="${product.id}">${expanded ? "收合" : "詳細"}</button>
           <button class="primary-button" type="button" data-add-product="${product.id}" ${blocked ? "disabled" : ""}>${selected ? "已加入" : "加入估價單"}</button>
         </div>
       </div>
@@ -551,13 +559,10 @@ function renderBadges(product) {
 
 function renderProductExtra(product, analysis) {
   const blocked = shouldBlockAdd(analysis);
+  const officialUrl = getProductOfficialUrl(product);
   return `
     <div class="product-extra">
-      <div class="mini-gallery" aria-label="產品預覽圖">
-        <div class="gallery-tile tone-${escapeHtml(product.tone)}"></div>
-        <div class="gallery-tile tone-${escapeHtml(product.tone)}"></div>
-        <div class="gallery-tile tone-${escapeHtml(product.tone)}"></div>
-      </div>
+      <p class="detail-copy">${escapeHtml(getProductDescription(product, getKeySpecs(product)))}</p>
       <dl class="spec-table">
         ${getSpecItems(product).map(([label, value]) => `
           <div class="spec-item">
@@ -569,6 +574,7 @@ function renderProductExtra(product, analysis) {
       ${renderIssues(analysis)}
       <div class="detail-actions">
         <button class="secondary-button" type="button" data-detail-product="${product.id}">查看完整介紹</button>
+        <a class="ghost-button official-link" href="${escapeHtml(officialUrl)}" target="_blank" rel="noopener noreferrer">前往產品官網</a>
         <button class="primary-button" type="button" data-add-product="${product.id}" ${blocked ? "disabled" : ""}>加入估價單</button>
       </div>
     </div>
@@ -850,6 +856,10 @@ function openProductDialog(productId) {
           </section>
         </div>
         <section class="dialog-section">
+          <h3>產品說明</h3>
+          <p class="detail-copy">${escapeHtml(getProductDescription(product, getKeySpecs(product)))}</p>
+        </section>
+        <section class="dialog-section">
           <h3>完整規格</h3>
           <table class="full-specs">
             <tbody>
@@ -863,6 +873,7 @@ function openProductDialog(productId) {
           </table>
         </section>
         <div class="detail-actions">
+          <a class="ghost-button official-link" href="${escapeHtml(getProductOfficialUrl(product))}" target="_blank" rel="noopener noreferrer">前往產品官網</a>
           <button class="primary-button" type="button" data-dialog-add="${product.id}" ${shouldBlockAdd(analysis) ? "disabled" : ""}>加入估價單</button>
           <button class="ghost-button" type="button" data-close-dialog>關閉</button>
         </div>
@@ -890,6 +901,44 @@ function getKeySpecs(product) {
     return normalized.includes("SOCKET") || normalized.includes("LGA") || normalized.includes("DDR") || normalized.includes("TDP") || normalized.includes("LENGTH") || normalized.includes("W") || normalized.includes("ATX") || normalized.includes("PCIe".toUpperCase());
   });
   return specs.slice(0, 3);
+}
+
+function getProductDescription(product, specs = getKeySpecs(product)) {
+  if (product.description) return product.description;
+  const meta = CATEGORY_META[product.category]?.label || product.categoryLabel || "零件";
+  const specText = specs.length ? specs.join("、") : product.tags.slice(0, 3).join("、");
+  const stockText = product.stock > 0 ? `目前庫存 ${product.stock} 件` : "目前需向門市確認供貨";
+  return `${meta}品項，${specText || "適合加入估價單比較"}。${stockText}，加入前可查看官網規格並確認版本差異。`;
+}
+
+function getProductOfficialUrl(product) {
+  if (product.officialUrl) return product.officialUrl;
+
+  const name = product.name;
+  const encoded = encodeURIComponent(name);
+  const manufacturerSearch = [
+    [/^AMD\b/i, `https://www.amd.com/en/search?keyword=${encoded}`],
+    [/^Intel\b/i, `https://www.intel.com/content/www/us/en/search.html?ws=text#q=${encoded}`],
+    [/^ASUS\b/i, `https://www.asus.com/searchresult?searchType=products&searchKey=${encoded}`],
+    [/^Gigabyte\b/i, `https://www.gigabyte.com/Search?kw=${encoded}`],
+    [/^MSI\b/i, `https://www.msi.com/search/${encoded}`],
+    [/^ASRock\b/i, `https://www.asrock.com/search/index.asp?Search=${encoded}`],
+    [/^Corsair\b/i, `https://www.corsair.com/search?q=${encoded}`],
+    [/^Kingston\b/i, `https://www.kingston.com/en/search?keyword=${encoded}`],
+    [/^Crucial\b/i, `https://www.crucial.com/search?query=${encoded}`],
+    [/^Samsung\b/i, `https://www.samsung.com/us/search/searchMain/?searchTerm=${encoded}`],
+    [/^Western Digital|^WD\b/i, `https://www.westerndigital.com/search?q=${encoded}`],
+    [/^Seagate\b/i, `https://www.seagate.com/search/?q=${encoded}`],
+    [/^NVIDIA\b/i, `https://www.nvidia.com/en-us/search/?q=${encoded}`],
+    [/^Cooler Master\b/i, `https://www.coolermaster.com/catalogsearch/result/?q=${encoded}`],
+    [/^Noctua\b/i, `https://noctua.at/en/search?search=${encoded}`],
+    [/^be quiet!/i, `https://www.bequiet.com/en/search?search=${encoded}`],
+    [/^Fractal\b/i, `https://www.fractal-design.com/?s=${encoded}`],
+    [/^Lian Li\b/i, `https://lian-li.com/?s=${encoded}`],
+  ];
+
+  const match = manufacturerSearch.find(([pattern]) => pattern.test(name));
+  return match ? match[1] : `https://www.google.com/search?q=${encodeURIComponent(`${name} official product`)}`;
 }
 
 function getSpecItems(product) {

@@ -27,8 +27,9 @@ Avoid dense spreadsheet‑like parts tables, hover‑dependent desktop configura
 ## Design Principles
 
 - **Make progress visible at all times** so users never need to remember what is missing. A clear step indicator shows which part categories are complete, pending, or have warnings.
+- **Make selected-part correction immediate**: filled progress blocks must expose both replace and remove actions directly inside the block, so users can undo a mistaken selection without scrolling to the selected-parts list.
 - **Block hard conflicts immediately** and explain the exact reason in plain language (e.g., “This CPU requires an LGA1700 motherboard, but you have an AM5 board selected”).
-- **Reveal part details progressively**: name, price, and key specs first (e.g., “4 cores, 3.5GHz”, “500W Bronze”) — complete specifications only on demand via a tap.
+- **Reveal part details progressively**: product lists should follow a PC-builder row pattern: product name as the primary line, price and actions on the right when space allows, a short description below the name, then compact inventory/spec context. Complete specifications remain available through a tap.
 - **Let structured fields and backend‑resolved actions drive behavior**, while keeping internal tag keys (e.g., `socket_type: "LGA1700"`) out of the customer interface.
 - **Favor thumb‑friendly mobile flows first**, with desktop gaining density (more visible parts per category) rather than different behavior.
 
@@ -43,3 +44,10 @@ Target WCAG AA contrast for text and controls. Support keyboard navigation, visi
 - **Pricing flexibility**: The shop owner can apply a global markup, category‑specific discounts, or manual quote adjustments. Prices are shown including local tax (configurable).
 - **Assembly & services**: A separate line item for “Assembly & testing” can be toggled on/off. Optional services (rush build, cable management, OS installation) can be added as extras.
 - **Staff override mode** (password protected): Allows shop staff to force‑select incompatible parts (with a warning logged), adjust prices manually, or mark special orders.
+
+## Product List & Official Link Maintenance
+
+- Product rows should stay within the app width and remain a single vertical list on desktop, matching the PC builder reference pattern without copying its dark theme or oversized side panel.
+- The list row only needs the product name as the main product identifier. Detailed explanation belongs in the description line below the name, using `description` or `details` from product data when available.
+- Product data may include `official_url` or `url`. If present, the “產品官網” button opens it in a new tab. Demo/static data may fall back to manufacturer search pages, but production data should provide exact official product URLs.
+- Key specs are supporting context only, shown compactly after stock information or in expanded details. Do not return to dense spreadsheet-style product tables.
