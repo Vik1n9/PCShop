@@ -39,7 +39,7 @@
 - `colors_and_type.css` — design tokens（`:root` 的色彩、字體、字級、字重、圓角、陰影、產品色調）與語意排版 helper class，是視覺事實來源。
 - `styles.css` — 元件層樣式，全部引用上述 token。
 
-品牌素材集中於 `assets/`：`logo-mark.svg`（PC 漸層圓角方塊，topbar 標誌與 favicon 使用）、`logo-lockup.svg`（含「泓達電腦 · 線上估價單」字標）、`icons/*.svg`（狀態線稿圖示）。
+品牌素材集中於 `assets/`：`logo-mark.svg`（PC 漸層圓角方塊，topbar 標誌與 favicon 使用）、`logo-lockup.svg`（含「線上估價單」字標）、`icons/*.svg`（狀態線稿圖示）。
 
 ## 本機預覽
 
