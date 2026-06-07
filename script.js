@@ -1,4 +1,5 @@
 const DATA_URL = "data/products.csv";
+const BENCHMARK_URL = "data/benchmarks.csv";
 
 const REQUIRED_CATEGORIES = [
   "cpu",
@@ -26,6 +27,7 @@ const CATEGORY_META = {
 };
 
 let products = [];
+let benchmarks = new Map();
 let selectedParts = {};
 let activeCategory = "cpu";
 let activeView = "picker";
@@ -46,7 +48,7 @@ async function init() {
   renderShellLoading();
 
   try {
-    products = await fetchProducts();
+    [products, benchmarks] = await Promise.all([fetchProducts(), fetchBenchmarks()]);
     render();
   } catch (error) {
     renderLoadError(error);
@@ -60,10 +62,12 @@ function bindElements() {
   els.progressHint = document.querySelector("#progressHint");
   els.progressFill = document.querySelector("#progressFill");
   els.progressSteps = document.querySelector("#progressSteps");
+  els.progressBenchmark = document.querySelector("#progressBenchmark");
   els.notice = document.querySelector("#notice");
   els.overviewPanel = document.querySelector("#overviewPanel");
   els.workspace = document.querySelector("#workspace");
   els.dialog = document.querySelector("#productDialog");
+  els.printQuote = document.querySelector("#printQuote");
 }
 
 function bindStaticEvents() {
@@ -76,6 +80,8 @@ function bindStaticEvents() {
   });
 
   document.querySelector("#saveQuoteTop").addEventListener("click", saveCurrentQuote);
+
+  window.addEventListener("beforeprint", renderPrintQuote);
 
   els.dialog.addEventListener("click", (event) => {
     if (event.target === els.dialog) {
@@ -91,6 +97,15 @@ async function fetchProducts() {
   }
   const rows = parseCsv(await response.text());
   return rows.map(normalizeProduct);
+}
+
+async function fetchBenchmarks() {
+  const response = await fetch(BENCHMARK_URL, { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error(`3DMark 分數載入失敗：${response.status}`);
+  }
+  const rows = parseCsv(await response.text());
+  return new Map(rows.map(normalizeBenchmark).filter(Boolean).map((benchmark) => [benchmark.key, benchmark]));
 }
 
 function parseCsv(text) {
@@ -162,6 +177,21 @@ function normalizeProduct(row) {
   };
 }
 
+function normalizeBenchmark(row) {
+  const cpuId = row.cpu_id;
+  const gpuId = row.gpu_id;
+  const score = Number(row.time_spy_score);
+  if (!cpuId || !gpuId || !Number.isFinite(score)) return null;
+  return {
+    key: getBenchmarkKey(cpuId, gpuId),
+    cpuId,
+    cpuName: row.cpu_name,
+    gpuId,
+    gpuName: row.gpu_name,
+    score,
+  };
+}
+
 function parseSpecs(category, tags) {
   const specs = {
     sockets: [],
@@ -219,11 +249,13 @@ function unique(items) {
 }
 
 function renderShellLoading() {
-  els.overviewPanel.innerHTML = `<div class="loading-state"><h2>載入資料</h2><p>products.csv</p></div>`;
-  els.workspace.innerHTML = `<div class="loading-state"><h2>載入資料</h2><p>products.csv</p></div>`;
+  els.progressBenchmark.innerHTML = "";
+  els.overviewPanel.innerHTML = `<div class="loading-state"><h2>載入資料</h2><p>products.csv / benchmarks.csv</p></div>`;
+  els.workspace.innerHTML = `<div class="loading-state"><h2>載入資料</h2><p>products.csv / benchmarks.csv</p></div>`;
 }
 
 function renderLoadError(error) {
+  els.progressBenchmark.innerHTML = "";
   els.overviewPanel.innerHTML = "";
   els.workspace.innerHTML = `
     <div class="empty-state">
@@ -231,7 +263,7 @@ function renderLoadError(error) {
       <p>${escapeHtml(error.message)}。請透過本機伺服器開啟頁面，讓瀏覽器可以 fetch CSV。</p>
     </div>
   `;
-  showNotice("danger", "資料載入失敗，請確認 data/products.csv 存在。");
+  showNotice("danger", "資料載入失敗，請確認 data/products.csv 與 data/benchmarks.csv 存在。");
 }
 
 function render() {
@@ -246,8 +278,10 @@ function render() {
   els.progressFill.style.width = `${(count / REQUIRED_CATEGORIES.length) * 100}%`;
 
   renderProgressSteps();
+  renderProgressBenchmark();
   renderOverview(issues);
   renderWorkspace();
+  renderPrintQuote();
 }
 
 function renderProgressSteps() {
@@ -271,6 +305,26 @@ function renderProgressSteps() {
   });
 }
 
+function renderProgressBenchmark() {
+  const preview = getBenchmarkPreview(selectedParts);
+  els.progressBenchmark.innerHTML = `
+    <button class="benchmark-preview ${preview.score ? "has-score" : "is-pending"}" type="button" data-benchmark-jump aria-label="${escapeHtml(preview.ariaLabel)}">
+      <span>
+        <b>3DMark Time Spy</b>
+        <small>${escapeHtml(preview.detail)}</small>
+      </span>
+      <strong>${preview.score ? formatScore(preview.score) : "--"}</strong>
+    </button>
+  `;
+
+  els.progressBenchmark.querySelector("[data-benchmark-jump]")?.addEventListener("click", () => {
+    activeCategory = selectedParts.cpu ? "gpu" : "cpu";
+    activeView = "picker";
+    els.body.dataset.view = activeView;
+    render();
+  });
+}
+
 function renderOverview(issues) {
   const total = getTotal(selectedParts);
   const count = REQUIRED_CATEGORIES.filter((category) => selectedParts[category]).length;
@@ -283,6 +337,7 @@ function renderOverview(issues) {
     <div class="build-map">
       ${REQUIRED_CATEGORIES.map(renderPartSlot).join("")}
     </div>
+    ${renderBenchmarkPanel()}
     ${renderIssues(issues)}
     <section class="build-specs" aria-label="目前電腦規格">
       <h3>目前電腦規格</h3>
@@ -329,7 +384,21 @@ function renderOverview(issues) {
   const printButton = els.overviewPanel.querySelector("[data-action='print-current']");
   saveButton?.addEventListener("click", saveCurrentQuote);
   copyButton?.addEventListener("click", () => copyText(formatQuoteText(selectedParts, "目前估價單")));
-  printButton?.addEventListener("click", () => window.print());
+  printButton?.addEventListener("click", printCurrentQuote);
+}
+
+function renderBenchmarkPanel() {
+  const preview = getBenchmarkPreview(selectedParts);
+  return `
+    <section class="benchmark-panel ${preview.score ? "has-score" : "is-pending"}" aria-label="3DMark 分數預覽">
+      <div>
+        <h3>3DMark 分數預覽</h3>
+        <p>${escapeHtml(preview.detail)}</p>
+      </div>
+      <strong>${preview.score ? formatScore(preview.score) : "--"}</strong>
+      <span>${escapeHtml(preview.tier)}</span>
+    </section>
+  `;
 }
 
 function renderPartSlot(category) {
@@ -373,12 +442,8 @@ function getSpecSummaryLabel(category) {
 }
 
 function formatSpecSummaryLine(category, product) {
-  if (category === "accessory") {
-    const specText = formatBuildSpecLine(product);
-    return `${product.name} ${formatPrice(product.price)}${specText ? `，${specText}` : ""}`;
-  }
-
-  return formatBuildSpecLine(product);
+  const specText = formatBuildSpecLine(product);
+  return `${product.name} ${formatPrice(product.price)}${specText ? `，${specText}` : ""}`;
 }
 
 function formatBuildSpecLine(product) {
@@ -642,19 +707,29 @@ function bindProductCardEvents() {
 }
 
 function renderSavedQuotes() {
+  const currentCount = Object.keys(selectedParts).length;
   els.workspace.innerHTML = `
     <div class="view-header">
       <div class="view-heading">
         <div>
           <h1>我的估價單</h1>
-          <p>${savedQuotes.length} 份已儲存</p>
+          <p>${currentCount ? `目前已選 ${currentCount} 項零件` : "目前尚未選擇零件"}</p>
         </div>
       </div>
     </div>
+    ${renderCurrentQuoteSummary()}
     <div class="quote-list">
+      <div class="quote-list-title">
+        <h2>已儲存估價單</h2>
+        <p>${savedQuotes.length} 份</p>
+      </div>
       ${savedQuotes.length ? savedQuotes.map(renderQuoteRow).join("") : `<div class="empty-state"><h2>尚無估價單</h2><p>儲存後會顯示在這裡。</p></div>`}
     </div>
   `;
+
+  els.workspace.querySelector("[data-action='save-current-quote']")?.addEventListener("click", saveCurrentQuote);
+  els.workspace.querySelector("[data-action='copy-current-quote']")?.addEventListener("click", () => copyText(formatQuoteText(selectedParts, "目前估價單")));
+  els.workspace.querySelector("[data-action='print-current-quote']")?.addEventListener("click", printCurrentQuote);
 
   els.workspace.querySelectorAll("[data-load-quote]").forEach((button) => {
     button.addEventListener("click", () => loadQuote(button.dataset.loadQuote));
@@ -668,6 +743,28 @@ function renderSavedQuotes() {
   els.workspace.querySelectorAll("[data-delete-quote]").forEach((button) => {
     button.addEventListener("click", () => deleteQuote(button.dataset.deleteQuote));
   });
+}
+
+function renderCurrentQuoteSummary() {
+  return `
+    <section class="current-quote-card" aria-label="目前估價單內容">
+      <div class="current-quote-card-header">
+        <div>
+          <h2>目前估價單</h2>
+          <p>純文字規格與總價</p>
+        </div>
+        <strong>${formatPrice(getTotal(selectedParts))}</strong>
+      </div>
+      <div class="build-specs is-quote-tab">
+        ${renderBuildSpecsText()}
+      </div>
+      <div class="quote-actions">
+        <button class="secondary-button" type="button" data-action="save-current-quote">儲存</button>
+        <button class="ghost-button" type="button" data-action="copy-current-quote">複製</button>
+        <button class="ghost-button" type="button" data-action="print-current-quote">列印</button>
+      </div>
+    </section>
+  `;
 }
 
 function renderQuoteRow(quote) {
@@ -860,6 +957,11 @@ function persistSavedQuotes() {
   localStorage.setItem("pcshop-quotes", JSON.stringify(savedQuotes));
 }
 
+function printCurrentQuote() {
+  renderPrintQuote();
+  window.print();
+}
+
 function openProductDialog(productId) {
   const product = products.find((item) => item.id === productId);
   if (!product) return;
@@ -998,6 +1100,64 @@ function getSpecItems(product) {
   return items.slice(0, 6);
 }
 
+function getBenchmarkPreview(parts) {
+  const cpu = parts.cpu;
+  const gpu = parts.gpu;
+  if (!cpu && !gpu) {
+    return {
+      score: 0,
+      detail: "選擇 CPU 與 GPU 後顯示預估遊戲性能",
+      tier: "等待核心零件",
+      ariaLabel: "3DMark 分數預覽，尚未選擇 CPU 與 GPU",
+    };
+  }
+  if (!cpu) {
+    return {
+      score: 0,
+      detail: "尚缺 CPU，選定後即可比對分數",
+      tier: "缺少 CPU",
+      ariaLabel: "3DMark 分數預覽，尚缺 CPU",
+    };
+  }
+  if (!gpu) {
+    return {
+      score: 0,
+      detail: "尚缺 GPU，選定後即可比對分數",
+      tier: "缺少 GPU",
+      ariaLabel: "3DMark 分數預覽，尚缺 GPU",
+    };
+  }
+
+  const benchmark = benchmarks.get(getBenchmarkKey(cpu.id, gpu.id));
+  if (!benchmark) {
+    return {
+      score: 0,
+      detail: "目前資料庫尚無此 CPU/GPU 組合分數",
+      tier: "待補資料",
+      ariaLabel: "3DMark 分數預覽，目前無此組合分數",
+    };
+  }
+
+  return {
+    score: benchmark.score,
+    detail: `${cpu.name} + ${gpu.name}`,
+    tier: getBenchmarkTier(benchmark.score),
+    ariaLabel: `3DMark Time Spy 預估 ${formatScore(benchmark.score)} 分，${cpu.name} 搭配 ${gpu.name}`,
+  };
+}
+
+function getBenchmarkKey(cpuId, gpuId) {
+  return `${cpuId}::${gpuId}`;
+}
+
+function getBenchmarkTier(score) {
+  if (score >= 30000) return "極致 4K / 創作性能";
+  if (score >= 22000) return "高階 4K 遊戲";
+  if (score >= 14000) return "主流 1440p 遊戲";
+  if (score >= 8000) return "入門 1080p 遊戲";
+  return "基礎顯示性能";
+}
+
 function getTotal(parts) {
   return Object.values(parts).reduce((sum, product) => sum + product.price, 0);
 }
@@ -1009,6 +1169,10 @@ function getDefaultQuoteName() {
 
 function formatPrice(value) {
   return `$${Number(value || 0).toLocaleString("en-US")}`;
+}
+
+function formatScore(value) {
+  return Number(value || 0).toLocaleString("en-US");
 }
 
 function intersects(a, b) {
@@ -1040,13 +1204,15 @@ async function copyText(text) {
 }
 
 function formatQuoteText(parts, name) {
+  const preview = getBenchmarkPreview(parts);
   const lines = [`${name}`, `總額：${formatPrice(getTotal(parts))}`];
+  lines.push(`3DMark Time Spy：${preview.score ? `${formatScore(preview.score)} (${preview.tier})` : preview.tier}`);
   REQUIRED_CATEGORIES.forEach((category) => {
     const part = parts[category];
-    lines.push(`${CATEGORY_META[category].label}：${part ? `${part.name} ${formatPrice(part.price)}` : "未選"}`);
+    lines.push(`${CATEGORY_META[category].label}：${part ? formatSpecSummaryLine(category, part) : "未選"}`);
   });
   const accessory = parts.accessory;
-  lines.push(`其他：${accessory ? `${accessory.name} ${formatPrice(accessory.price)}` : "未選"}`);
+  lines.push(`其他：${accessory ? formatSpecSummaryLine("accessory", accessory) : "未選"}`);
   return lines.join("\n");
 }
 
@@ -1057,6 +1223,34 @@ function formatSavedQuoteText(quote) {
     if (product) parts[category] = product;
   });
   return formatQuoteText(parts, quote.name);
+}
+
+function renderPrintQuote() {
+  if (!els.printQuote) return;
+  const title = getDefaultQuoteName();
+  const preview = getBenchmarkPreview(selectedParts);
+  els.printQuote.innerHTML = `
+    <div class="print-sheet">
+      <h1>${escapeHtml(title)}</h1>
+      <dl class="print-specs">
+        ${SPEC_SUMMARY_CATEGORIES.map((category) => {
+          const part = selectedParts[category];
+          return `
+            <div>
+              <dt>${escapeHtml(getSpecSummaryLabel(category))}</dt>
+              <dd>${part ? escapeHtml(formatSpecSummaryLine(category, part)) : "未選"}</dd>
+            </div>
+          `;
+        }).join("")}
+      </dl>
+      <p class="print-benchmark">3DMark Time Spy：${escapeHtml(preview.score ? `${formatScore(preview.score)} (${preview.tier})` : preview.tier)}</p>
+      <p class="print-total">總價：${escapeHtml(formatPrice(getTotal(selectedParts)))}</p>
+      <footer>
+        <p>聯絡電話：XXX</p>
+        <p>Email：XXX</p>
+      </footer>
+    </div>
+  `;
 }
 
 function escapeHtml(value) {

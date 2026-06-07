@@ -208,6 +208,63 @@ input:focus-visible {
   transition: width 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.progress-benchmark {
+  min-width: 0;
+}
+
+.benchmark-preview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  width: 100%;
+  min-height: 54px;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  text-align: left;
+}
+
+.benchmark-preview:hover {
+  border-color: oklch(0.68 0.055 250);
+  background: var(--primary-soft);
+}
+
+.benchmark-preview span {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.benchmark-preview b {
+  color: var(--ink-deep);
+  font-size: 0.84rem;
+  line-height: 1.2;
+}
+
+.benchmark-preview small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.benchmark-preview strong {
+  color: var(--ink-deep);
+  font-size: 1.24rem;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.benchmark-preview.is-pending strong {
+  color: var(--subtle);
+}
+
 .progress-steps,
 .category-tabs {
   display: flex;
@@ -255,7 +312,7 @@ input:focus-visible {
 
 .notice {
   position: sticky;
-  top: 166px;
+  top: 232px;
   z-index: 26;
   margin: 0;
   padding: 12px 16px;
@@ -764,6 +821,62 @@ body[data-view="overview"] .workspace {
   margin-bottom: 16px;
 }
 
+.benchmark-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 14px;
+  margin-bottom: 16px;
+  padding: 14px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.benchmark-panel.has-score {
+  border-color: oklch(0.73 0.07 252);
+  background: var(--primary-soft);
+}
+
+.benchmark-panel h3,
+.benchmark-panel p {
+  margin: 0;
+}
+
+.benchmark-panel h3 {
+  color: var(--ink-deep);
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.benchmark-panel p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.benchmark-panel strong {
+  color: var(--ink-deep);
+  font-size: 1.7rem;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.benchmark-panel > span {
+  grid-column: 1 / -1;
+  justify-self: start;
+  padding: 5px 8px;
+  border-radius: var(--pill);
+  background: var(--canvas);
+  color: var(--primary-deep);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
 .part-slot {
   display: grid;
   grid-template-rows: 1fr auto;
@@ -848,6 +961,48 @@ body[data-view="overview"] .workspace {
   gap: 10px;
 }
 
+.current-quote-card {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding: 16px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.current-quote-card-header,
+.quote-list-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.current-quote-card h2,
+.quote-list-title h2 {
+  margin: 0;
+  color: var(--ink-deep);
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.current-quote-card p,
+.quote-list-title p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.current-quote-card-header strong {
+  flex: 0 0 auto;
+  color: var(--ink-deep);
+  font-size: 1.18rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
 .selected-row,
 .quote-row {
   display: grid;
@@ -923,6 +1078,12 @@ body[data-view="overview"] .workspace {
   font-size: 0.82rem;
   line-height: 1.45;
   overflow-wrap: anywhere;
+}
+
+.build-specs.is-quote-tab {
+  margin-top: 0;
+  padding: 0;
+  border-top: 0;
 }
 
 .quote-total {
@@ -1003,6 +1164,10 @@ body[data-view="overview"] .workspace {
   border-top: 1px solid var(--hairline-soft);
   background: oklch(1 0 0 / 0.96);
   backdrop-filter: blur(14px);
+}
+
+.print-quote {
+  display: none;
 }
 
 .bottom-nav button {
@@ -1156,6 +1321,22 @@ body[data-view="saved"] .bottom-nav [data-view-target="saved"] {
 }
 
 @media (min-width: 720px) {
+  .progress-strip {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+    align-items: center;
+  }
+
+  .progress-copy,
+  .progress-meter,
+  .progress-steps {
+    grid-column: 1;
+  }
+
+  .progress-benchmark {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+  }
+
   .product-list {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1250,5 +1431,105 @@ body[data-view="saved"] .bottom-nav [data-view-target="saved"] {
     min-width: 0;
     padding-inline: 8px;
     white-space: normal;
+  }
+}
+
+@media print {
+  @page {
+    margin: 16mm;
+  }
+
+  html,
+  body {
+    min-height: auto;
+    background: white;
+    color: black;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .print-quote,
+  .print-quote * {
+    visibility: visible !important;
+  }
+
+  .app-frame,
+  .bottom-nav,
+  .product-dialog,
+  .notice {
+    display: none !important;
+  }
+
+  .print-quote {
+    display: block;
+    position: static;
+    width: auto;
+    color: black;
+    font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  .print-sheet {
+    display: grid;
+    gap: 14px;
+  }
+
+  .print-sheet h1 {
+    margin: 0 0 6px;
+    color: black;
+    font-size: 20pt;
+    line-height: 1.2;
+  }
+
+  .print-specs {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    border-top: 1px solid black;
+  }
+
+  .print-specs div {
+    display: grid;
+    grid-template-columns: 32mm minmax(0, 1fr);
+    gap: 8mm;
+    padding: 7px 0;
+    border-bottom: 1px solid black;
+    break-inside: avoid;
+  }
+
+  .print-specs dt,
+  .print-specs dd {
+    margin: 0;
+    color: black;
+    font-size: 10.5pt;
+    line-height: 1.45;
+  }
+
+  .print-specs dt {
+    font-weight: 700;
+  }
+
+  .print-benchmark,
+  .print-total,
+  .print-sheet footer p {
+    margin: 0;
+    color: black;
+    font-size: 11pt;
+    line-height: 1.45;
+  }
+
+  .print-total {
+    padding-top: 4px;
+    font-size: 15pt;
+    font-weight: 800;
+  }
+
+  .print-sheet footer {
+    display: grid;
+    gap: 4px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid black;
   }
 }

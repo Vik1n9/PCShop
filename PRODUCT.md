@@ -1,5 +1,10 @@
 # Product
 
+## Version
+
+**Version**: 1.2
+**Date**: 2026-06-07
+
 ## Register
 
 product
@@ -10,7 +15,14 @@ PCShop serves two main groups: first-time and entry-level PC buyers, as well as 
 
 ## Product Purpose
 
-PCShop is a mobile-first PC build quotation tool designed for local computer shops. It helps users select eight core part categories (CPU, motherboard, RAM, storage, GPU, PSU, case, cooling), blocks hard compatibility conflicts in real time, surfaces soft warnings (e.g., size or power headroom), and generates a clean quote that can be saved, shared, copied, or printed. Success means a novice user moves from budget intent to a complete, purchasable configuration with visible confidence in compatibility, while a DIY enthusiast finishes a quote in under two minutes and walks into the shop ready to buy.
+PCShop is a mobile-first PC build quotation tool designed for local computer shops. It helps users select eight core part categories (CPU, motherboard, RAM, storage, GPU, PSU, case, cooling), blocks hard compatibility conflicts in real time, surfaces soft warnings (e.g., size or power headroom), previews expected 3DMark Time Spy performance after CPU and GPU selection, and generates a clean quote that can be saved, shared, copied, or printed. Success means a novice user moves from budget intent to a complete, purchasable configuration with visible confidence in compatibility and performance level, while a DIY enthusiast finishes a quote in under two minutes and walks into the shop ready to buy.
+
+## Project Concept Maintenance
+
+- When the project adds a feature or changes product logic, purchasing flow, compatibility behavior, filtering behavior, data model, UI behavior, or customer-facing quote behavior, the project concept documents must be updated in the same change.
+- `PRODUCT.md` tracks product intent, customer experience, design principles, maintenance policy, and roadmap-level concept decisions.
+- `規格書.txt` tracks functional requirements, technical rules, data structures, compatibility logic, UI interaction requirements, admin/backend behavior, and implementation constraints.
+- If a change updates either document, bump that document's version number and date so future maintenance can trace the implemented behavior back to the current concept version.
 
 ## Local Shop Context
 
@@ -27,6 +39,7 @@ Avoid dense spreadsheet‑like parts tables, hover‑dependent desktop configura
 ## Design Principles
 
 - **Make progress visible at all times** so users never need to remember what is missing. A clear step indicator shows which part categories are complete, pending, or have warnings.
+- **Make performance legible early**: once CPU and GPU are selected, the progress navigation should show a 3DMark Time Spy score and plain-language tier so users understand whether the build matches their gaming or creative-performance expectations.
 - **Make selected-part correction immediate**: filled progress blocks must expose both replace and remove actions directly inside the block, so users can undo a mistaken selection without scrolling to the selected-parts list.
 - **Block hard conflicts immediately** and explain the exact reason in plain language (e.g., “This CPU requires an LGA1700 motherboard, but you have an AM5 board selected”).
 - **Reveal part details progressively**: product lists should follow a PC-builder row pattern: product name as the primary line, price and actions on the right when space allows, a short description below the name, then compact inventory/spec context. Complete specifications remain available through a tap.
@@ -51,3 +64,9 @@ Target WCAG AA contrast for text and controls. Support keyboard navigation, visi
 - The list row only needs the product name as the main product identifier. Detailed explanation belongs in the description line below the name, using `description` or `details` from product data when available.
 - Product data may include `official_url` or `url`. If present, the “產品官網” button opens it in a new tab. Demo/static data may fall back to manufacturer search pages, but production data should provide exact official product URLs.
 - Key specs are supporting context only, shown compactly after stock information or in expanded details. Do not return to dense spreadsheet-style product tables.
+
+## Benchmark Preview Maintenance
+
+- 3DMark Time Spy preview data is maintained separately from product inventory data, keyed by selected `cpu_id` and `gpu_id`.
+- The progress navigation must show a pending state until both CPU and GPU are selected, a score state when a matching benchmark exists, and a clear “待補資料” state when the pair has not been scored yet.
+- Benchmark scores are guidance for relative performance comparison, not a purchase guarantee; avoid presenting them as exact results for every user’s thermal, driver, or power configuration.
