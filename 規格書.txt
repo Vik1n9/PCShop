@@ -62,6 +62,8 @@ Any feature addition or logic change must update the relevant project concept do
 - Visual assembly progress
   - Horizontal progress bar at the top always shows “Selected X/8”.
   - Missing categories are greyed out with icons; tapping them jumps directly to that part picker.
+  - The top progress area is the only part-category navigation control. The picker must not render a second horizontal category tab row with the same CPU/MB/RAM/GPU switching behavior.
+  - If optional accessory products exist, the progress navigation may include an accessory shortcut that does not change the eight-core-part completion count.
   - A compact 3DMark Time Spy preview appears in the core progress navigation. Before CPU/GPU selection it explains what is missing; after both are selected it looks up the matching CPU/GPU benchmark row and shows the score plus a plain-language performance tier.
 - Conflict detection and smart suggestions
   - Hard conflict on adding a part: red banner slides down explaining why, plus a “Show compatible alternatives” button.
@@ -217,7 +219,7 @@ Frontend behaviour:
 - Content area: Changes according to selected navigation tab.
 
 ### 6.2 Part Picker Page Interactions
-- Horizontal scrollable category chips at the top (CPU, MB, …) – current category highlighted.
+- Part-category switching is handled by the top progress/navigation area. The picker header must not duplicate it with a second horizontal category chip row.
 - Smart filtering appears as a clickable status control in the picker toolbar. Tapping the status switches between enabled and disabled states; the UI must not present a second checkbox or separate smart-filter option.
 - Product list as vertical PC-builder-style row stream. Each row shows:
   - Row layout sized to this site’s content width rather than copied at full reference-site proportions.

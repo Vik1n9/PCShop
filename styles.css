@@ -265,8 +265,7 @@ input:focus-visible {
   color: var(--subtle);
 }
 
-.progress-steps,
-.category-tabs {
+.progress-steps {
   display: flex;
   gap: 8px;
   overflow-x: auto;
@@ -274,13 +273,11 @@ input:focus-visible {
   -webkit-overflow-scrolling: touch;
 }
 
-.progress-steps::-webkit-scrollbar,
-.category-tabs::-webkit-scrollbar {
+.progress-steps::-webkit-scrollbar {
   display: none;
 }
 
-.step-button,
-.category-tab {
+.step-button {
   min-height: 36px;
   padding: 8px 14px;
   border: 1px solid var(--hairline);
@@ -291,7 +288,6 @@ input:focus-visible {
 }
 
 .step-button:hover,
-.category-tab:hover,
 .ghost-button:hover,
 .secondary-button:hover {
   border-color: oklch(0.68 0.055 250);
@@ -299,7 +295,7 @@ input:focus-visible {
 }
 
 .step-button.is-selected,
-.category-tab.is-active {
+.step-button.is-active {
   border-color: var(--ink-deep);
   background: var(--ink-deep);
   color: white;
@@ -308,6 +304,10 @@ input:focus-visible {
 
 .step-button.is-empty {
   color: var(--subtle);
+}
+
+.step-button.is-optional {
+  border-style: dashed;
 }
 
 .notice {

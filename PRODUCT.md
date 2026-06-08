@@ -39,6 +39,7 @@ Avoid dense spreadsheet‑like parts tables, hover‑dependent desktop configura
 ## Design Principles
 
 - **Make progress visible at all times** so users never need to remember what is missing. A clear step indicator shows which part categories are complete, pending, or have warnings.
+- **Use the progress indicator as the part-category navigator** so users have one obvious place to jump between CPU, motherboard, memory, GPU, storage, case, PSU, cooler, and optional accessory items instead of scanning duplicate category tabs.
 - **Make performance legible early**: once CPU and GPU are selected, the progress navigation should show a 3DMark Time Spy score and plain-language tier so users understand whether the build matches their gaming or creative-performance expectations.
 - **Make selected-part correction immediate**: filled progress blocks must expose both replace and remove actions directly inside the block, so users can undo a mistaken selection without scrolling to the selected-parts list.
 - **Block hard conflicts immediately** and explain the exact reason in plain language (e.g., “This CPU requires an LGA1700 motherboard, but you have an AM5 board selected”).

@@ -285,11 +285,18 @@ function render() {
 }
 
 function renderProgressSteps() {
-  els.progressSteps.innerHTML = REQUIRED_CATEGORIES.map((category) => {
+  els.progressSteps.innerHTML = getProgressNavigationCategories().map((category) => {
     const part = selectedParts[category];
     const meta = CATEGORY_META[category];
+    const isRequired = REQUIRED_CATEGORIES.includes(category);
+    const classes = [
+      "step-button",
+      part ? "is-selected" : "is-empty",
+      category === activeCategory ? "is-active" : "",
+      isRequired ? "" : "is-optional",
+    ].filter(Boolean).join(" ");
     return `
-      <button class="step-button ${part ? "is-selected" : "is-empty"}" type="button" data-step-category="${category}">
+      <button class="${classes}" type="button" data-step-category="${category}">
         ${meta.short}${part ? " ✓" : ""}
       </button>
     `;
@@ -299,10 +306,20 @@ function renderProgressSteps() {
     button.addEventListener("click", () => {
       activeCategory = button.dataset.stepCategory;
       activeView = "picker";
+      expandedProductId = "";
       els.body.dataset.view = activeView;
       render();
     });
   });
+}
+
+function getProgressNavigationCategories() {
+  const available = getAvailableCategories();
+  const categories = REQUIRED_CATEGORIES.filter((category) => available.includes(category));
+  if (available.includes("accessory")) {
+    categories.push("accessory");
+  }
+  return categories;
 }
 
 function renderProgressBenchmark() {
@@ -478,7 +495,6 @@ function renderWorkspace() {
 }
 
 function renderPicker() {
-  const categories = getAvailableCategories();
   const activeMeta = CATEGORY_META[activeCategory];
   const visibleProducts = getProductsForActiveCategory();
   const allProducts = products.filter((product) => product.category === activeCategory);
@@ -491,9 +507,6 @@ function renderPicker() {
           <h1>${activeMeta.label}</h1>
           <p>${renderResultSummary(visibleProducts.length, compatibleCount, allProducts.length)}</p>
         </div>
-      </div>
-      <div class="category-tabs" aria-label="零件類別">
-        ${categories.map(renderCategoryTab).join("")}
       </div>
       <div class="toolbar">
         <label class="search-control">
@@ -516,14 +529,6 @@ function renderPicker() {
       ${visibleProducts.length ? visibleProducts.map(renderProductCard).join("") : renderEmptyProductState()}
     </div>
   `;
-
-  els.workspace.querySelectorAll("[data-category]").forEach((button) => {
-    button.addEventListener("click", () => {
-      activeCategory = button.dataset.category;
-      expandedProductId = "";
-      render();
-    });
-  });
 
   const searchInput = els.workspace.querySelector("#productSearch");
   const updateSearch = (event) => {
@@ -550,16 +555,6 @@ function renderPicker() {
 function getAvailableCategories() {
   const existing = unique(products.map((product) => product.category));
   return [...REQUIRED_CATEGORIES, "accessory"].filter((category) => existing.includes(category));
-}
-
-function renderCategoryTab(category) {
-  const meta = CATEGORY_META[category];
-  const selected = selectedParts[category];
-  return `
-    <button class="category-tab ${category === activeCategory ? "is-active" : ""}" type="button" data-category="${category}">
-      ${meta.label}${selected ? " ✓" : ""}
-    </button>
-  `;
 }
 
 function getProductsForActiveCategory() {
