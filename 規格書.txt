@@ -1,6 +1,6 @@
 # PC Assembly Online Quotation System – Development Specification
 
-**Version**: 3.1
+**Version**: 3.2
 **Date**: 2026-06-08 CST
 **Design Principles**: Mobile-first, tag-driven internals, structured constraints, beginner-friendly
 
@@ -22,7 +22,7 @@ Any feature addition or logic change must update the relevant project concept do
 - Use internal tags and structured compatibility rules to automate smart filtering and conflict prevention – eliminating socket mismatches, size overflows, insufficient wattage, etc.
 - Provide an intuitive assembly progress visualization showing selected and missing parts, reducing the user’s memory load.
 - Filled assembly progress blocks must include direct replace and remove actions, so users can correct the build from the progress area itself.
-- Show a 3DMark Time Spy performance preview in the core progress navigation after both CPU and GPU are selected, helping users quickly understand the expected gaming-performance tier of the current build.
+- Show a 3DMark Time Spy performance preview in the assembly progress overview after both CPU and GPU are selected, helping users quickly understand the expected gaming-performance tier of the current build.
 - Any selected part must show an immediate product image preview, with access to full illustrated details without leaving the quotation flow.
 - Smooth mobile operation – all components and gestures designed for thumb-friendly zones; desktop provides a denser multi-column view.
 - Admin panel can control frontend behavior via dynamic tags (e.g., bundle-only, promo badges) without any frontend code changes.
@@ -60,11 +60,10 @@ Any feature addition or logic change must update the relevant project concept do
   - Tap a product card: inline expansion shows a carousel, key specs, price, and a “View full details” button.
   - Full details open in a full-screen overlay with marketing images, complete spec table, compatibility notes, and a bottom “Add to quote” button.
 - Visual assembly progress
-  - Horizontal progress bar at the top always shows “Selected X/8”.
-  - Missing categories are greyed out with icons; tapping them jumps directly to that part picker.
-  - The top progress area is the only part-category navigation control. The picker must not render a second horizontal category tab row with the same CPU/MB/RAM/GPU switching behavior.
-  - If optional accessory products exist, the progress navigation may include an accessory shortcut that does not change the eight-core-part completion count.
-  - A compact 3DMark Time Spy preview appears in the core progress navigation. Before CPU/GPU selection it explains what is missing; after both are selected it looks up the matching CPU/GPU benchmark row and shows the score plus a plain-language performance tier.
+  - The standalone top progress bar is not required in the MVP. Assembly progress is shown in the overview panel instead.
+  - Missing categories are greyed out in the assembly overview; tapping them jumps directly to that part picker.
+  - Part-category switching remains in the product picker category tabs, including optional accessory groups when product data exists.
+  - A compact 3DMark Time Spy preview appears in the assembly progress overview. Before CPU/GPU selection it explains what is missing; after both are selected it looks up the matching CPU/GPU benchmark row and shows the score plus a plain-language performance tier.
 - Conflict detection and smart suggestions
   - Hard conflict on adding a part: red banner slides down explaining why, plus a “Show compatible alternatives” button.
   - Soft warning (e.g., slightly low PSU wattage, no cooler): yellow banner, does not block addition.
@@ -174,7 +173,7 @@ For the static MVP, the frontend loads `data/benchmarks.csv` alongside `data/pro
 | cpu_name | Human-readable CPU name for maintenance review |
 | gpu_id | Product ID of the selected GPU |
 | gpu_name | Human-readable GPU name for maintenance review |
-| time_spy_score | 3DMark Time Spy estimate displayed in the progress navigation |
+| time_spy_score | 3DMark Time Spy estimate displayed in the assembly overview |
 
 Frontend behaviour:
 - If CPU and GPU are both selected and a matching row exists, show the formatted Time Spy score and performance tier.
@@ -214,12 +213,12 @@ Frontend behaviour:
   - Assembly progress (overview of current config and missing parts)
   - Part picker (quick category switching)
   - My quotations (history)
-- Top progress bar: Always shows “Selected X/8”, with a list of missing category icons on the right – tap to jump.
-- 3DMark Time Spy preview: Lives inside the top progress/navigation area, remains compact on mobile, and updates immediately when CPU or GPU changes.
+- Assembly progress overview: Shows selected and missing categories; tapping a missing or selected slot jumps to that part picker.
+- 3DMark Time Spy preview: Lives inside the assembly progress overview, remains compact on mobile, and updates immediately when CPU or GPU changes.
 - Content area: Changes according to selected navigation tab.
 
 ### 6.2 Part Picker Page Interactions
-- Part-category switching is handled by the top progress/navigation area. The picker header must not duplicate it with a second horizontal category chip row.
+- Horizontal scrollable category chips at the top of the picker (CPU, MB, RAM, GPU, Storage, Case, PSU, Cooler, and optional groups such as Accessories) remain the primary product-category switcher; current category is highlighted.
 - Smart filtering appears as a clickable status control in the picker toolbar. Tapping the status switches between enabled and disabled states; the UI must not present a second checkbox or separate smart-filter option.
 - Product list as vertical PC-builder-style row stream. Each row shows:
   - Row layout sized to this site’s content width rather than copied at full reference-site proportions.
@@ -241,7 +240,7 @@ Frontend behaviour:
 - Clearly shown total price and “Save quotation” button.
 
 ### 6.4 Conflict & Notification Presentation
-- Hard conflict: Red banner slides down below the top progress bar, with error message and a “Pick compatible alternatives for me” button; conflicting card border turns red, and a subtle vibration animation (on supported devices).
+- Hard conflict: Red banner slides down below the top bar, with error message and a “Pick compatible alternatives for me” button; conflicting card border turns red, and a subtle vibration animation (on supported devices).
 - Soft warning: Yellow banner with suggestion, no blocking.
 - Assembly-only restriction: Badge shows “Assembly only”; if user attempts to add it without meeting requirements, a friendly dialog explains the rule.
 

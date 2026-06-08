@@ -2,7 +2,7 @@
 
 ## Version
 
-**Version**: 1.4
+**Version**: 1.5
 **Date**: 2026-06-08
 
 ## Register
@@ -38,9 +38,9 @@ Avoid dense spreadsheet‑like parts tables, hover‑dependent desktop configura
 
 ## Design Principles
 
-- **Make progress visible at all times** so users never need to remember what is missing. A clear step indicator shows which part categories are complete, pending, or have warnings.
-- **Use the progress indicator as the part-category navigator** so users have one obvious place to jump between CPU, motherboard, memory, GPU, storage, case, PSU, cooler, and optional accessory items instead of scanning duplicate category tabs.
-- **Make performance legible early**: once CPU and GPU are selected, the progress navigation should show a 3DMark Time Spy score and plain-language tier so users understand whether the build matches their gaming or creative-performance expectations.
+- **Make progress visible in the assembly overview** so users never need to remember what is missing. The overview panel shows which part categories are complete, pending, or have warnings.
+- **Keep part-category tabs in the product picker** so users can browse all product groups, including optional accessories and other non-core categories, without relying on the assembly progress UI.
+- **Make performance legible early**: once CPU and GPU are selected, the assembly overview should show a 3DMark Time Spy score and plain-language tier so users understand whether the build matches their gaming or creative-performance expectations.
 - **Make selected-part correction immediate**: filled progress blocks must expose both replace and remove actions directly inside the block, so users can undo a mistaken selection without scrolling to the selected-parts list.
 - **Block hard conflicts immediately** and explain the exact reason in plain language (e.g., “This CPU requires an LGA1700 motherboard, but you have an AM5 board selected”).
 - **Reveal part details progressively**: product lists should follow a PC-builder row pattern: product name as the primary line, price and actions on the right when space allows, a short description below the name, then compact inventory/spec context. Complete specifications remain available through a tap.
@@ -76,5 +76,5 @@ Target WCAG AA contrast for text and controls. Support keyboard navigation, visi
 ## Benchmark Preview Maintenance
 
 - 3DMark Time Spy preview data is maintained separately from product inventory data, keyed by selected `cpu_id` and `gpu_id`.
-- The progress navigation must show a pending state until both CPU and GPU are selected, a score state when a matching benchmark exists, and a clear “待補資料” state when the pair has not been scored yet.
+- The assembly overview must show a pending state until both CPU and GPU are selected, a score state when a matching benchmark exists, and a clear “待補資料” state when the pair has not been scored yet.
 - Benchmark scores are guidance for relative performance comparison, not a purchase guarantee; avoid presenting them as exact results for every user’s thermal, driver, or power configuration.

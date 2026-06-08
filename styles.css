@@ -164,108 +164,7 @@ input:focus-visible {
   background: var(--primary-deep);
 }
 
-.progress-strip {
-  position: sticky;
-  top: 68px;
-  z-index: 24;
-  display: grid;
-  gap: 12px;
-  padding: 14px 16px;
-  background: oklch(1 0 0 / 0.94);
-  border-bottom: 1px solid var(--hairline-soft);
-  backdrop-filter: blur(14px);
-}
-
-.progress-copy {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  color: var(--muted);
-  font-size: 0.88rem;
-}
-
-.progress-copy strong {
-  color: var(--ink-deep);
-  font-size: 0.93rem;
-  text-align: right;
-  text-wrap: balance;
-}
-
-.progress-meter {
-  height: 7px;
-  overflow: hidden;
-  border-radius: var(--pill);
-  background: var(--surface-strong);
-}
-
-.progress-meter span {
-  display: block;
-  width: 0%;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--primary);
-  transition: width 180ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.progress-benchmark {
-  min-width: 0;
-}
-
-.benchmark-preview {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  width: 100%;
-  min-height: 54px;
-  gap: 12px;
-  padding: 10px 12px;
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--ink);
-  text-align: left;
-}
-
-.benchmark-preview:hover {
-  border-color: oklch(0.68 0.055 250);
-  background: var(--primary-soft);
-}
-
-.benchmark-preview span {
-  display: grid;
-  min-width: 0;
-  gap: 3px;
-}
-
-.benchmark-preview b {
-  color: var(--ink-deep);
-  font-size: 0.84rem;
-  line-height: 1.2;
-}
-
-.benchmark-preview small {
-  overflow: hidden;
-  color: var(--muted);
-  font-size: 0.76rem;
-  line-height: 1.3;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.benchmark-preview strong {
-  color: var(--ink-deep);
-  font-size: 1.24rem;
-  font-weight: 850;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-
-.benchmark-preview.is-pending strong {
-  color: var(--subtle);
-}
-
-.progress-steps {
+.category-tabs {
   display: flex;
   gap: 8px;
   overflow-x: auto;
@@ -273,11 +172,11 @@ input:focus-visible {
   -webkit-overflow-scrolling: touch;
 }
 
-.progress-steps::-webkit-scrollbar {
+.category-tabs::-webkit-scrollbar {
   display: none;
 }
 
-.step-button {
+.category-tab {
   min-height: 36px;
   padding: 8px 14px;
   border: 1px solid var(--hairline);
@@ -287,32 +186,23 @@ input:focus-visible {
   white-space: nowrap;
 }
 
-.step-button:hover,
+.category-tab:hover,
 .ghost-button:hover,
 .secondary-button:hover {
   border-color: oklch(0.68 0.055 250);
   background: var(--surface);
 }
 
-.step-button.is-selected,
-.step-button.is-active {
+.category-tab.is-active {
   border-color: var(--ink-deep);
   background: var(--ink-deep);
   color: white;
   font-weight: 750;
 }
 
-.step-button.is-empty {
-  color: var(--subtle);
-}
-
-.step-button.is-optional {
-  border-style: dashed;
-}
-
 .notice {
   position: sticky;
-  top: 232px;
+  top: 68px;
   z-index: 26;
   margin: 0;
   padding: 12px 16px;
@@ -1321,22 +1211,6 @@ body[data-view="saved"] .bottom-nav [data-view-target="saved"] {
 }
 
 @media (min-width: 720px) {
-  .progress-strip {
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
-    align-items: center;
-  }
-
-  .progress-copy,
-  .progress-meter,
-  .progress-steps {
-    grid-column: 1;
-  }
-
-  .progress-benchmark {
-    grid-column: 2;
-    grid-row: 1 / span 3;
-  }
-
   .product-list {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1351,13 +1225,8 @@ body[data-view="saved"] .bottom-nav [data-view-target="saved"] {
     padding-inline: 28px;
   }
 
-  .progress-strip {
-    top: 68px;
-    padding-inline: 28px;
-  }
-
   .notice {
-    top: 166px;
+    top: 68px;
     padding-inline: 28px;
   }
 
@@ -1373,9 +1242,9 @@ body[data-view="saved"] .bottom-nav [data-view-target="saved"] {
   body[data-view="saved"] .overview-panel,
   body[data-view="overview"] .overview-panel {
     position: sticky;
-    top: 166px;
+    top: 68px;
     display: block;
-    min-height: calc(100vh - 166px);
+    min-height: calc(100vh - 68px);
     border-right: 1px solid var(--hairline-soft);
     background: var(--surface);
   }

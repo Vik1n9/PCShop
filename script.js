@@ -58,11 +58,6 @@ async function init() {
 function bindElements() {
   els.body = document.body;
   els.topTotal = document.querySelector("#topTotal");
-  els.progressCount = document.querySelector("#progressCount");
-  els.progressHint = document.querySelector("#progressHint");
-  els.progressFill = document.querySelector("#progressFill");
-  els.progressSteps = document.querySelector("#progressSteps");
-  els.progressBenchmark = document.querySelector("#progressBenchmark");
   els.notice = document.querySelector("#notice");
   els.overviewPanel = document.querySelector("#overviewPanel");
   els.workspace = document.querySelector("#workspace");
@@ -249,13 +244,11 @@ function unique(items) {
 }
 
 function renderShellLoading() {
-  els.progressBenchmark.innerHTML = "";
   els.overviewPanel.innerHTML = `<div class="loading-state"><h2>載入資料</h2><p>products.csv / benchmarks.csv</p></div>`;
   els.workspace.innerHTML = `<div class="loading-state"><h2>載入資料</h2><p>products.csv / benchmarks.csv</p></div>`;
 }
 
 function renderLoadError(error) {
-  els.progressBenchmark.innerHTML = "";
   els.overviewPanel.innerHTML = "";
   els.workspace.innerHTML = `
     <div class="empty-state">
@@ -268,78 +261,12 @@ function renderLoadError(error) {
 
 function render() {
   const total = getTotal(selectedParts);
-  const count = REQUIRED_CATEGORIES.filter((category) => selectedParts[category]).length;
-  const nextCategory = REQUIRED_CATEGORIES.find((category) => !selectedParts[category]);
   const issues = checkBuild(selectedParts);
 
   els.topTotal.textContent = formatPrice(total);
-  els.progressCount.textContent = `已選 ${count}/${REQUIRED_CATEGORIES.length}`;
-  els.progressHint.textContent = issues.hard[0]?.message || issues.soft[0]?.message || (nextCategory ? `下一項：${CATEGORY_META[nextCategory].label}` : "核心零件已完成");
-  els.progressFill.style.width = `${(count / REQUIRED_CATEGORIES.length) * 100}%`;
-
-  renderProgressSteps();
-  renderProgressBenchmark();
   renderOverview(issues);
   renderWorkspace();
   renderPrintQuote();
-}
-
-function renderProgressSteps() {
-  els.progressSteps.innerHTML = getProgressNavigationCategories().map((category) => {
-    const part = selectedParts[category];
-    const meta = CATEGORY_META[category];
-    const isRequired = REQUIRED_CATEGORIES.includes(category);
-    const classes = [
-      "step-button",
-      part ? "is-selected" : "is-empty",
-      category === activeCategory ? "is-active" : "",
-      isRequired ? "" : "is-optional",
-    ].filter(Boolean).join(" ");
-    return `
-      <button class="${classes}" type="button" data-step-category="${category}">
-        ${meta.short}${part ? " ✓" : ""}
-      </button>
-    `;
-  }).join("");
-
-  els.progressSteps.querySelectorAll("[data-step-category]").forEach((button) => {
-    button.addEventListener("click", () => {
-      activeCategory = button.dataset.stepCategory;
-      activeView = "picker";
-      expandedProductId = "";
-      els.body.dataset.view = activeView;
-      render();
-    });
-  });
-}
-
-function getProgressNavigationCategories() {
-  const available = getAvailableCategories();
-  const categories = REQUIRED_CATEGORIES.filter((category) => available.includes(category));
-  if (available.includes("accessory")) {
-    categories.push("accessory");
-  }
-  return categories;
-}
-
-function renderProgressBenchmark() {
-  const preview = getBenchmarkPreview(selectedParts);
-  els.progressBenchmark.innerHTML = `
-    <button class="benchmark-preview ${preview.score ? "has-score" : "is-pending"}" type="button" data-benchmark-jump aria-label="${escapeHtml(preview.ariaLabel)}">
-      <span>
-        <b>3DMark Time Spy</b>
-        <small>${escapeHtml(preview.detail)}</small>
-      </span>
-      <strong>${preview.score ? formatScore(preview.score) : "--"}</strong>
-    </button>
-  `;
-
-  els.progressBenchmark.querySelector("[data-benchmark-jump]")?.addEventListener("click", () => {
-    activeCategory = selectedParts.cpu ? "gpu" : "cpu";
-    activeView = "picker";
-    els.body.dataset.view = activeView;
-    render();
-  });
 }
 
 function renderOverview(issues) {
@@ -495,6 +422,7 @@ function renderWorkspace() {
 }
 
 function renderPicker() {
+  const categories = getAvailableCategories();
   const activeMeta = CATEGORY_META[activeCategory];
   const visibleProducts = getProductsForActiveCategory();
   const allProducts = products.filter((product) => product.category === activeCategory);
@@ -507,6 +435,9 @@ function renderPicker() {
           <h1>${activeMeta.label}</h1>
           <p>${renderResultSummary(visibleProducts.length, compatibleCount, allProducts.length)}</p>
         </div>
+      </div>
+      <div class="category-tabs" aria-label="零件類別">
+        ${categories.map(renderCategoryTab).join("")}
       </div>
       <div class="toolbar">
         <label class="search-control">
@@ -529,6 +460,14 @@ function renderPicker() {
       ${visibleProducts.length ? visibleProducts.map(renderProductCard).join("") : renderEmptyProductState()}
     </div>
   `;
+
+  els.workspace.querySelectorAll("[data-category]").forEach((button) => {
+    button.addEventListener("click", () => {
+      activeCategory = button.dataset.category;
+      expandedProductId = "";
+      render();
+    });
+  });
 
   const searchInput = els.workspace.querySelector("#productSearch");
   const updateSearch = (event) => {
@@ -555,6 +494,16 @@ function renderPicker() {
 function getAvailableCategories() {
   const existing = unique(products.map((product) => product.category));
   return [...REQUIRED_CATEGORIES, "accessory"].filter((category) => existing.includes(category));
+}
+
+function renderCategoryTab(category) {
+  const meta = CATEGORY_META[category];
+  const selected = selectedParts[category];
+  return `
+    <button class="category-tab ${category === activeCategory ? "is-active" : ""}" type="button" data-category="${category}">
+      ${meta.label}${selected ? " ✓" : ""}
+    </button>
+  `;
 }
 
 function getProductsForActiveCategory() {
