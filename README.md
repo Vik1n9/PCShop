@@ -55,6 +55,28 @@ python3 -m http.server 4173
 http://localhost:4173/
 ```
 
+## 後台產品管理
+
+後台入口只在 README 提供，不顯示於商店頁面中。需要新增、修改、移除產品並寫回資料庫時，請改用 Node 後端模式啟動：
+
+```bash
+node server.js
+```
+
+商店頁：
+
+```text
+http://localhost:4173/
+```
+
+後台產品管理頁：
+
+```text
+http://localhost:4173/admin.html
+```
+
+目前登入頁保留登入接口，但測試版暫時不需要輸入使用者名稱或密碼。後台會讀寫 `data/products.csv`，支援快速搜尋產品、新增產品、編輯欄位、移除產品，並在儲存後直接寫回目前 CSV 資料庫。
+
 ## 資料來源
 
 - `規格書.txt`：產品與互動規格。

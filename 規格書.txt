@@ -1,7 +1,7 @@
 # PC Assembly Online Quotation System – Development Specification
 
-**Version**: 2.9
-**Date**: 2026-06-07 01:28 CST
+**Version**: 3.1
+**Date**: 2026-06-08 CST
 **Design Principles**: Mobile-first, tag-driven internals, structured constraints, beginner-friendly
 
 ---
@@ -73,7 +73,15 @@ Any feature addition or logic change must update the relevant project concept do
   - Save, rename, share link, export PDF, copy spec text.
 
 ### 3.2 Admin Backend
+- Access and authentication
+  - The backend product-management page is not linked from the customer storefront and must not render a store-page navigation button or visible customer-facing admin link.
+  - Maintainer access is documented only in `README.md`.
+  - The MVP login page keeps a login action and backend session API, but does not require username or password input yet. The username/password credential fields are reserved for a later production authentication layer.
 - Product data management
+  - The current MVP database is `data/products.csv`, using the same 10-column schema consumed by the storefront: `id`, `category`, `category_label`, `name`, `stock`, `price`, `tags`, `badges`, `restriction`, `tone`.
+  - The backend management page must support creating, editing, and deleting products and must persist each successful change back into `data/products.csv`.
+  - Product search in the backend must be fast and cover ID, product name, category, category label, stock, price, tags, badges, restrictions, and tone so maintainers can quickly locate rows before editing.
+  - If a new product is saved without an ID, the backend may generate the next `pNNN` identifier from the existing CSV rows.
   - Each part requires structured compatibility fields (CPU socket, RAM type, max GPU length, etc.) and can have multiple internal tags.
   - Each product can provide `description` (or `details`) for the short explanatory copy shown beneath the product name in the picker list.
   - Each product can provide `official_url` (or `url`) for the “Product official site” button. Production data should use exact manufacturer product pages; demo data may fall back to manufacturer search pages only when no exact URL exists.

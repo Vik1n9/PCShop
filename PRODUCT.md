@@ -2,8 +2,8 @@
 
 ## Version
 
-**Version**: 1.2
-**Date**: 2026-06-07
+**Version**: 1.4
+**Date**: 2026-06-08
 
 ## Register
 
@@ -64,6 +64,13 @@ Target WCAG AA contrast for text and controls. Support keyboard navigation, visi
 - The list row only needs the product name as the main product identifier. Detailed explanation belongs in the description line below the name, using `description` or `details` from product data when available.
 - Product data may include `official_url` or `url`. If present, the “產品官網” button opens it in a new tab. Demo/static data may fall back to manufacturer search pages, but production data should provide exact official product URLs.
 - Key specs are supporting context only, shown compactly after stock information or in expanded details. Do not return to dense spreadsheet-style product tables.
+
+## Admin Product Management Maintenance
+
+- The customer storefront must stay focused on quotation flow and must not display an admin/backend entry link.
+- The temporary backend entry is documented in `README.md` for maintainers. This keeps customer-facing navigation clean while still allowing local product database maintenance.
+- The MVP admin login keeps the authentication interface and session endpoint, but does not require a username or password yet. Future production work can attach real credentials to the existing login API without changing the maintenance flow.
+- Product administrators can search, add, edit, and remove catalog rows through the backend page. Saved changes write directly to `data/products.csv`, which remains the current product database used by the storefront.
 
 ## Benchmark Preview Maintenance
 

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PCShop 後台產品管理</title>
+    <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="colors_and_type.css" />
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body>
+    <main class="admin-app">
+      <section id="loginView" class="login-view" hidden>
+        <div class="login-panel">
+          <img src="assets/logo-mark.svg" alt="" width="48" height="48" />
+          <h1>PCShop 後台</h1>
+          <p>登入接口已保留；目前測試版不需輸入使用者名稱與密碼。</p>
+          <button id="loginButton" class="primary-button" type="button">登入產品管理</button>
+        </div>
+      </section>
+
+      <section id="adminView" class="workspace" hidden>
+        <header class="admin-topbar">
+          <div>
+            <p class="eyebrow">Product Admin</p>
+            <h1>產品資料庫管理</h1>
+          </div>
+          <div class="topbar-actions">
+            <output id="saveState" class="save-state">已連線</output>
+            <button id="reloadButton" class="ghost-button" type="button">重新載入</button>
+            <button id="logoutButton" class="ghost-button" type="button">登出</button>
+          </div>
+        </header>
+
+        <section class="tool-row" aria-label="產品搜尋與操作">
+          <label class="search-control">
+            <span>快速搜尋</span>
+            <input id="searchInput" type="search" placeholder="搜尋 ID、名稱、分類、標籤、庫存或價格" autocomplete="off" />
+          </label>
+          <button id="newButton" class="primary-button" type="button">新增產品</button>
+        </section>
+
+        <div class="content-grid">
+          <section class="product-panel" aria-label="產品清單">
+            <div class="panel-heading">
+              <h2>產品清單</h2>
+              <output id="resultCount">0 項</output>
+            </div>
+            <div id="productList" class="product-list"></div>
+          </section>
+
+          <section class="editor-panel" aria-label="產品編輯">
+            <div class="panel-heading">
+              <h2 id="editorTitle">新增產品</h2>
+              <button id="deleteButton" class="danger-button" type="button" hidden>移除</button>
+            </div>
+            <form id="productForm" class="product-form">
+              <label>
+                <span>產品 ID</span>
+                <input name="id" autocomplete="off" placeholder="留空自動產生，例如 p156" />
+              </label>
+              <label>
+                <span>分類</span>
+                <select name="category" required>
+                  <option value="cpu">cpu</option>
+                  <option value="motherboard">motherboard</option>
+                  <option value="memory">memory</option>
+                  <option value="gpu">gpu</option>
+                  <option value="storage">storage</option>
+                  <option value="case">case</option>
+                  <option value="psu">psu</option>
+                  <option value="cooler">cooler</option>
+                  <option value="accessory">accessory</option>
+                </select>
+              </label>
+              <label>
+                <span>分類顯示名稱</span>
+                <input name="category_label" required />
+              </label>
+              <label class="is-wide">
+                <span>產品名稱</span>
+                <input name="name" required />
+              </label>
+              <label>
+                <span>庫存</span>
+                <input name="stock" type="number" min="0" step="1" required />
+              </label>
+              <label>
+                <span>價格</span>
+                <input name="price" type="number" min="0" step="0.01" required />
+              </label>
+              <label class="is-wide">
+                <span>規格標籤</span>
+                <textarea name="tags" rows="4" placeholder="Socket AM5; TDP 120W; DDR5"></textarea>
+              </label>
+              <label>
+                <span>徽章</span>
+                <input name="badges" placeholder="熱銷; 高效能" />
+              </label>
+              <label>
+                <span>銷售限制</span>
+                <input name="restriction" placeholder="bundle_only" />
+              </label>
+              <label>
+                <span>色調</span>
+                <select name="tone">
+                  <option value="amber">amber</option>
+                  <option value="blue">blue</option>
+                  <option value="green">green</option>
+                  <option value="violet">violet</option>
+                  <option value="cyan">cyan</option>
+                  <option value="teal">teal</option>
+                  <option value="slate">slate</option>
+                  <option value="red">red</option>
+                  <option value="neutral">neutral</option>
+                </select>
+              </label>
+              <div class="form-actions">
+                <button id="resetButton" class="ghost-button" type="button">清空</button>
+                <button class="primary-button" type="submit">寫入資料庫</button>
+              </div>
+            </form>
+          </section>
+        </div>
+      </section>
+    </main>
+    <script src="admin.js" defer></script>
+  </body>
+</html>
