@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>製作幕後：PCShop 估價系統的誕生 — 從痛點到部署的一頁式教學</title>
+<meta name="description" content="完整記錄 PCShop（手機優先、新手友善的電腦組裝估價系統）的製作過程：發想、文件設計、技術棧與資料模型、實際運用的 AI 技能與外掛、調試方法，到推送部署。所有工具與參考資料皆附出處連結。" />
+<meta name="author" content="Vik1n9" />
+<meta property="og:title" content="製作幕後：PCShop 估價系統的誕生" />
+<meta property="og:description" content="從痛點到部署，一頁讀懂 PCShop 是怎麼做出來的——含實際使用的技能、外掛與調試方法，全部附出處。" />
+<meta property="og:type" content="article" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    /* ---- Palette (oklch) ---- */
+    --bg: oklch(99% 0.004 95);
+    --surface: oklch(97.5% 0.006 95);
+    --surface-2: oklch(95% 0.008 95);
+    --ink-900: oklch(22% 0.03 260);
+    --ink: oklch(30% 0.03 260);
+    --ink-soft: oklch(45% 0.02 260);
+    --muted: oklch(60% 0.015 260);
+    --line: oklch(89% 0.01 260);
+    --line-strong: oklch(80% 0.015 260);
+    --primary: oklch(78% 0.16 110);          /* warm yellow-green */
+    --primary-ink: oklch(34% 0.10 120);
+    --accent: oklch(64% 0.16 45);            /* rust / orange */
+    --official: oklch(58% 0.16 255);         /* blue */
+    --ok: oklch(62% 0.15 150);               /* green */
+    --bad: oklch(58% 0.20 25);               /* red */
+    --dark: oklch(23% 0.03 260);
+    --dark-2: oklch(18% 0.03 262);
+    --on-dark: oklch(96% 0.01 95);
+    --on-dark-soft: oklch(78% 0.02 260);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 1px 2px oklch(20% 0.03 260 / .06), 0 8px 24px oklch(20% 0.03 260 / .07);
+    --maxw: 1080px;
+    --content: 40rem;
+    --serif: "Noto Serif TC", Georgia, "Times New Roman", serif;
+    --sans: "Noto Sans TC", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: "Space Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; scroll-padding-top: 72px; }
+  body{
+    margin:0; background: var(--bg); color: var(--ink);
+    font-family: var(--sans); font-size: 17px; line-height: 1.75;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  a{ color: var(--official); text-decoration: none; }
+  a:hover{ text-decoration: underline; }
+  h1,h2,h3{ font-family: var(--serif); color: var(--ink-900); line-height: 1.25; letter-spacing: .01em; }
+  code, kbd{ font-family: var(--mono); }
+
+  /* ---- Progress bar ---- */
+  .progress{ position: fixed; top:0; left:0; height: 3px; width:0%; background: linear-gradient(90deg, var(--primary), var(--accent)); z-index: 100; transition: width .1s linear; }
+
+  /* ---- Top nav ---- */
+  .nav{
+    position: sticky; top:0; z-index: 60; backdrop-filter: saturate(1.2) blur(8px);
+    background: oklch(99% 0.004 95 / .82); border-bottom: 1px solid var(--line);
+  }
+  .nav-in{ max-width: var(--maxw); margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:16px; padding: 12px clamp(20px,4vw,40px); }
+  .brand{ font-family: var(--serif); font-weight: 900; font-size: 1.05rem; color: var(--ink-900); display:flex; align-items:center; gap:10px; }
+  .brand .dot{ width: 12px; height:12px; border-radius:4px; background: linear-gradient(135deg, var(--primary), var(--accent)); display:inline-block; }
+  .nav-links{ display:flex; gap: 4px; flex-wrap: wrap; }
+  .nav-links a{ color: var(--ink-soft); font-size: .82rem; font-weight: 500; padding: 6px 10px; border-radius: 999px; }
+  .nav-links a:hover{ background: var(--surface-2); text-decoration:none; color: var(--ink-900); }
+  @media (max-width: 920px){ .nav-links{ display:none; } }
+
+  /* ---- Layout ---- */
+  section{ padding: clamp(58px, 9vw, 108px) clamp(20px, 4vw, 40px); }
+  .wrap{ max-width: var(--maxw); margin: 0 auto; }
+  .narrow{ max-width: var(--content); }
+  .eyebrow{ font-family: var(--mono); font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 700; display:flex; align-items:center; gap:10px; margin-bottom: 14px; }
+  .eyebrow .num{ background: var(--surface-2); border:1px solid var(--line); border-radius: 8px; padding: 2px 8px; color: var(--ink-soft); }
+  h2.title{ font-size: clamp(1.7rem, 4vw, 2.5rem); margin: 0 0 .5em; font-weight: 900; }
+  .lead{ font-size: 1.12rem; color: var(--ink-soft); max-width: var(--content); }
+  p{ max-width: var(--content); }
+  .small{ font-size: .9rem; color: var(--muted); }
+
+  /* ---- Hero ---- */
+  .hero{ background: radial-gradient(120% 120% at 80% -10%, var(--dark-2), var(--dark) 60%); color: var(--on-dark); }
+  .hero h1{ color: var(--on-dark); font-size: clamp(2.1rem, 6vw, 4rem); font-weight: 900; margin: .2em 0 .3em; }
+  .hero h1 .hl{ color: var(--primary); }
+  .hero .lead{ color: var(--on-dark-soft); }
+  .badge{ display:inline-flex; align-items:center; gap:8px; font-family: var(--mono); font-size: .78rem; letter-spacing:.1em; text-transform:uppercase; color: var(--primary); border:1px solid oklch(78% 0.16 110 / .4); border-radius: 999px; padding: 6px 14px; }
+  .stepper{ display:flex; flex-wrap:wrap; gap: 10px; margin-top: 34px; }
+  .stepper a{ display:flex; flex-direction:column; gap:2px; min-width: 120px; flex:1; padding: 12px 14px; border:1px solid oklch(78% 0.02 260 / .18); border-radius: var(--radius-sm); color: var(--on-dark-soft); background: oklch(96% 0.01 95 / .03); }
+  .stepper a:hover{ border-color: var(--primary); text-decoration:none; color: var(--on-dark); }
+  .stepper .n{ font-family: var(--mono); color: var(--primary); font-size: .8rem; }
+  .stepper .t{ font-weight: 700; font-size: .95rem; }
+
+  /* ---- Cards / steps ---- */
+  .stepc{ display:flex; gap:18px; padding: 20px; border:1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); margin: 14px 0; }
+  .stepc .idx{ flex: none; width: 38px; height: 38px; border-radius: 10px; background: var(--ink-900); color: var(--on-dark); display:grid; place-items:center; font-family: var(--mono); font-weight: 700; }
+  .stepc h3{ margin: 2px 0 6px; font-size: 1.15rem; }
+  .stepc p{ margin: 0; color: var(--ink-soft); }
+
+  .grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 18px; }
+  @media (max-width: 760px){ .grid{ grid-template-columns: 1fr; } }
+
+  /* ---- Tool cards ---- */
+  .tool{ border:1px solid var(--line); border-radius: var(--radius); padding: 18px; background: var(--surface); box-shadow: var(--shadow); display:flex; flex-direction:column; gap: 8px; }
+  .tool h3{ font-family: var(--sans); font-size: 1.05rem; margin:0; display:flex; align-items:center; gap:8px; }
+  .tool .tags{ display:flex; gap:6px; flex-wrap:wrap; }
+  .tag{ font-family: var(--mono); font-size: .7rem; letter-spacing:.04em; padding: 2px 8px; border-radius:999px; background: var(--surface-2); color: var(--ink-soft); border:1px solid var(--line); }
+  .tag.official{ color: var(--official); border-color: oklch(58% 0.16 255 / .35); background: oklch(58% 0.16 255 / .08); }
+  .tag.third{ color: var(--accent); border-color: oklch(64% 0.16 45 / .35); background: oklch(64% 0.16 45 / .08); }
+  .tool p{ margin:0; font-size: .95rem; color: var(--ink-soft); }
+  .src{ margin-top: auto; font-family: var(--mono); font-size: .8rem; }
+  .src a{ display:inline-flex; align-items:center; gap:6px; }
+  .src a::before{ content:"↗"; color: var(--muted); }
+
+  /* ---- Callout ---- */
+  .callout{ border-left: 4px solid var(--primary); background: oklch(78% 0.16 110 / .08); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 16px 20px; margin: 22px 0; }
+  .callout.accent{ border-left-color: var(--accent); background: oklch(64% 0.16 45 / .07); }
+  .callout.official{ border-left-color: var(--official); background: oklch(58% 0.16 255 / .07); }
+  .callout strong{ color: var(--ink-900); }
+
+  /* ---- Case cards ---- */
+  .case{ border:1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 18px 20px; margin: 14px 0; }
+  .case .label{ font-family: var(--mono); font-size: .75rem; letter-spacing:.1em; text-transform:uppercase; color: var(--accent); font-weight:700; }
+  .case h3{ font-family: var(--sans); font-size: 1.05rem; margin: 6px 0; }
+
+  /* ---- Code blocks ---- */
+  .code{ border:1px solid var(--line-strong); border-radius: var(--radius-sm); overflow:hidden; margin: 16px 0; background: var(--dark); }
+  .code .bar{ display:flex; align-items:center; justify-content:space-between; padding: 8px 12px; background: var(--dark-2); border-bottom: 1px solid oklch(50% 0.02 260 / .3); }
+  .code .lang{ font-family: var(--mono); font-size: .72rem; letter-spacing:.08em; color: var(--on-dark-soft); text-transform: uppercase; }
+  .code .copy{ font-family: var(--mono); font-size: .72rem; color: var(--on-dark-soft); background: transparent; border:1px solid oklch(60% 0.02 260 / .4); border-radius: 6px; padding: 3px 10px; cursor: pointer; }
+  .code .copy:hover{ color: var(--primary); border-color: var(--primary); }
+  .code pre{ margin:0; padding: 16px; overflow-x:auto; }
+  .code code{ font-family: var(--mono); font-size: .85rem; line-height: 1.7; color: var(--on-dark); white-space: pre; }
+  .code .c-com{ color: oklch(62% 0.04 150); }
+  .code .c-kw{ color: var(--primary); }
+  .code .c-str{ color: oklch(72% 0.13 45); }
+  .code .c-fn{ color: oklch(72% 0.12 255); }
+
+  /* ---- Before / after ---- */
+  .ba{ border:1px solid var(--line); border-radius: var(--radius); padding: 16px; background: var(--surface); margin: 16px 0; }
+  .ba .toggle{ display:inline-flex; border:1px solid var(--line-strong); border-radius: 999px; overflow:hidden; margin-bottom: 12px; }
+  .ba .toggle button{ font-family: var(--mono); font-size: .78rem; padding: 6px 16px; border:0; background: transparent; cursor:pointer; color: var(--ink-soft); }
+  .ba .toggle button[aria-pressed="true"]{ background: var(--ink-900); color: var(--on-dark); }
+  .ba .panel{ display:none; }
+  .ba .panel.show{ display:block; }
+  .ba .verdict{ font-size: .9rem; margin-top: 8px; font-weight: 500; }
+  .ba .verdict.bad{ color: var(--bad); }
+  .ba .verdict.ok{ color: var(--ok); }
+
+  /* ---- Table ---- */
+  .tablewrap{ overflow-x:auto; margin: 18px 0; border:1px solid var(--line); border-radius: var(--radius-sm); }
+  table{ border-collapse: collapse; width:100%; font-size: .9rem; min-width: 520px; }
+  th,td{ text-align:left; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  th{ background: var(--surface-2); font-family: var(--sans); color: var(--ink-900); font-weight:700; }
+  td code{ font-size: .82rem; color: var(--accent); }
+
+  /* ---- Checklist / finale ---- */
+  .finale{ background: radial-gradient(120% 120% at 10% -10%, var(--dark-2), var(--dark) 60%); color: var(--on-dark); }
+  .finale h2{ color: var(--on-dark); }
+  .finale .lead{ color: var(--on-dark-soft); }
+  .checklist{ list-style:none; padding:0; margin: 22px 0; display:grid; gap: 10px; max-width: var(--content); }
+  .checklist li{ display:flex; gap: 12px; align-items:flex-start; padding: 12px 16px; border:1px solid oklch(70% 0.02 260 / .18); border-radius: var(--radius-sm); background: oklch(96% 0.01 95 / .03); }
+  .checklist .ck{ flex:none; width:22px; height:22px; border-radius: 6px; background: var(--ok); color: #fff; display:grid; place-items:center; font-size: .8rem; font-weight:700; }
+  .pull{ font-family: var(--serif); font-weight: 700; font-size: clamp(1.3rem, 3.4vw, 2rem); line-height: 1.4; color: var(--on-dark); border-top:1px solid oklch(60% 0.02 260 / .3); border-bottom:1px solid oklch(60% 0.02 260 / .3); padding: 28px 0; margin: 30px 0; }
+  .pull .hl{ color: var(--primary); }
+  .cta{ display:flex; gap: 12px; flex-wrap:wrap; margin-top: 18px; }
+  .btn{ display:inline-flex; align-items:center; gap:8px; font-weight:700; border-radius: 999px; padding: 12px 22px; border:1px solid transparent; cursor:pointer; font-family: var(--sans); font-size: .95rem; }
+  .btn.primary{ background: var(--primary); color: var(--primary-ink); }
+  .btn.ghost{ background: transparent; color: var(--on-dark); border-color: oklch(70% 0.02 260 / .4); }
+  .btn:hover{ text-decoration:none; transform: translateY(-1px); }
+
+  /* ---- References ---- */
+  .refs{ background: var(--surface); border-top: 1px solid var(--line); }
+  .refs ol{ max-width: var(--maxw); margin: 18px auto 0; padding-left: 1.4em; display:grid; gap: 10px; }
+  .refs li{ font-size: .92rem; color: var(--ink-soft); }
+  .refs li a{ font-weight: 500; }
+  .refs .group{ font-family: var(--mono); font-size: .78rem; letter-spacing:.1em; text-transform:uppercase; color: var(--accent); margin: 22px 0 4px; font-weight:700; }
+
+  /* ---- Footer ---- */
+  footer{ background: var(--dark-2); color: var(--on-dark-soft); padding: 40px clamp(20px,4vw,40px); font-size: .88rem; }
+  footer .wrap{ display:flex; flex-wrap:wrap; gap: 20px; justify-content: space-between; }
+  footer a{ color: var(--primary); }
+  footer .note{ max-width: 46ch; }
+
+  /* ---- Reveal animation ---- */
+  .reveal{ opacity:0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in{ opacity:1; transform:none; }
+  [data-d="1"]{ transition-delay: .08s; }
+  [data-d="2"]{ transition-delay: .16s; }
+  [data-d="3"]{ transition-delay: .24s; }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior: auto; }
+    .reveal{ opacity:1; transform:none; transition:none; }
+    .btn:hover{ transform:none; }
+  }
+
+  /* ---- Print ---- */
+  @media print{
+    .nav, .progress, .copy, .toggle, .cta, .stepper{ display:none !important; }
+    body{ font-size: 12px; color:#000; background:#fff; }
+    .hero, .finale, .refs{ background:#fff !important; color:#000 !important; }
+    .hero h1, .finale h2, .pull, .hero .lead, .finale .lead{ color:#000 !important; }
+    section{ padding: 18px 0; }
+    .stepc, .tool, .case, .ba, .code, .checklist li{ break-inside: avoid; box-shadow:none; }
+    .ba .panel{ display:block !important; }
+    .code{ background:#f4f4f4; } .code code, .code .lang{ color:#111; }
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+
+<nav class="nav">
+  <div class="nav-in">
+    <div class="brand"><span class="dot"></span>PCShop 製作幕後</div>
+    <div class="nav-links">
+      <a href="#s1">01 緣起</a>
+      <a href="#s2">02 計畫</a>
+      <a href="#s3">03 技術</a>
+      <a href="#s4">04 技能外掛</a>
+      <a href="#s5">05 調試</a>
+      <a href="#s6">06 部署</a>
+      <a href="#refs">出處</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap narrow">
+    <span class="badge reveal">● 製作紀錄 · 2026/06/09</span>
+    <h1 class="reveal" data-d="1">用 AI 從零打造一個<br><span class="hl">手機優先的電腦估價系統</span></h1>
+    <p class="lead reveal" data-d="2">這是一份 PCShop 專案的「製作幕後」。它記錄了真實的開發歷程——從一個抱怨（「傳統估價網頁太難用」）出發，如何透過文件設計、相容性約束引擎、行動優先 UI，並借助 AI 協作工具完成、調試與部署。文中提到的<strong>每一項技能、外掛與參考資料都附上出處連結</strong>，方便你延伸學習。</p>
+    <nav class="stepper reveal" data-d="3" aria-label="章節導覽">
+      <a href="#s1"><span class="n">01</span><span class="t">緣起與痛點</span></a>
+      <a href="#s2"><span class="n">02</span><span class="t">發想與計畫</span></a>
+      <a href="#s3"><span class="n">03</span><span class="t">技術與資料</span></a>
+      <a href="#s4"><span class="n">04</span><span class="t">技能與外掛</span></a>
+      <a href="#s5"><span class="n">05</span><span class="t">溝通與調試</span></a>
+      <a href="#s6"><span class="n">06</span><span class="t">推送與部署</span></a>
+    </nav>
+  </div>
+</header>
+
+<!-- 01 -->
+<section id="s1">
+  <div class="wrap">
+    <div class="eyebrow reveal"><span class="num">01</span> 緣起與痛點</div>
+    <h2 class="title reveal" data-d="1">從一句抱怨，變成一份需求</h2>
+    <p class="lead reveal" data-d="2">傳統電腦估價網頁（如原價屋、欣亞）表格密集、難在手機操作；相容性檢查仰賴使用者自身知識（買了 Intel CPU 卻配到 AMD 主機板）；估價單要手抄或截圖，無法即時分享；實體店家更常只靠紙本或 Excel 報價。</p>
+
+    <div class="callout reveal">
+      <strong>目標：</strong>設計一個「行動優先、保護式引導」的估價工具，讓新手能在兩分鐘內完成一份<em>可以照著買</em>的配置單，而且不會選到不相容的零件。
+    </div>
+
+    <div class="grid">
+      <div class="tool reveal" data-d="1">
+        <h3>👤 入門新手</h3>
+        <p>懂預算與用途，但不懂腳位、瓦數、尺寸；最怕買錯零件。需要系統幫他擋下錯誤。</p>
+      </div>
+      <div class="tool reveal" data-d="2">
+        <h3>🔧 DIY 玩家</h3>
+        <p>想快速篩選、知道本地庫存、即時檢查相容性，不想被冗長表格拖慢速度。</p>
+      </div>
+    </div>
+
+    <p class="reveal" style="margin-top:22px">PCShop 的品牌個性因此被定為三個詞：<strong>沈穩、精準、守護</strong>——像一位專業店員，而不是一座冰冷的資料庫。這個定位後來貫穿了配色、文案與互動行為。<span class="small">（來源：專案 <a href="#refs">PRODUCT.md</a>）</span></p>
+  </div>
+</section>
+
+<!-- 02 -->
+<section id="s2" style="background:var(--surface)">
+  <div class="wrap">
+    <div class="eyebrow reveal"><span class="num">02</span> 發想與計畫</div>
+    <h2 class="title reveal" data-d="1">文件即設計：先寫清楚，再動手</h2>
+    <p class="lead reveal" data-d="2">PCShop 沒有一開始就寫程式。它先用幾份文件把「概念 → 規格 → 實作」這條鏈子釘牢，讓每一行程式都能對應到一個明確的決策。</p>
+
+    <div class="stepc reveal" data-d="1">
+      <div class="idx">A</div>
+      <div><h3>PRODUCT.md — 產品概念文件</h3><p>定義使用者、目的、品牌個性與設計原則：組裝進度必須隨時可見、硬衝突立即阻擋並用白話解釋、軟警告不阻擋、CPU+GPU 選定後顯示 3DMark Time Spy 預覽、漸進式揭露、拇指友善。並載明「改功能就更新文件並升版」的維護規則（目前 v1.5）。</p></div>
+    </div>
+    <div class="stepc reveal" data-d="2">
+      <div class="idx">B</div>
+      <div><h3>規格書.txt — 技術規格書</h3><p>把資料結構、標籤解析、相容性邏輯、UI 行為寫成可執行的規格（目前 v3.2），包含 WCAG AA 無障礙與 reduced-motion 支援。</p></div>
+    </div>
+    <div class="stepc reveal" data-d="3">
+      <div class="idx">C</div>
+      <div><h3>README.md / AGENTS.md — 上手與維護守則</h3><p>README 寫給開發者與店家（功能、本地預覽、後台入口）；AGENTS.md 寫給協作的 AI 代理：專案結構與維護規範。</p></div>
+    </div>
+
+    <div class="callout accent reveal">
+      <strong>核心原則：</strong>相容性不是寫死在程式裡的 <code>if/else</code>，而是一份「可配置的約束表」。營運人員改資料就能改規則，不必動程式。
+    </div>
+  </div>
+</section>
+
+<!-- 03 -->
+<section id="s3">
+  <div class="wrap">
+    <div class="eyebrow reveal"><span class="num">03</span> 技術棧與資料模型</div>
+    <h2 class="title reveal" data-d="1">刻意「無框架」：純前端 + Node 標準函式庫</h2>
+    <p class="lead reveal" data-d="2">為了好教、好讀、好稽核，PCShop 全程不用任何框架或打包工具。前端是 vanilla HTML/CSS/JS；後台是 Node 內建的 <code>node:http</code>（沒有 Express）；資料以 CSV 作為單一真實來源。</p>
+
+    <div class="grid">
+      <div class="tool reveal" data-d="1">
+        <div class="tags"><span class="tag">前端</span></div>
+        <h3>Vanilla HTML / CSS / JS</h3>
+        <p>無 React、無打包器。設計 token 集中在 <code>colors_and_type.css</code>（oklch 色彩 + 語意字級），元件樣式在 <code>styles.css</code>，邏輯在 <code>script.js</code>（約 1,200 行）。</p>
+        <div class="src"><a href="https://developer.mozilla.org/zh-TW/docs/Web" target="_blank" rel="noopener">MDN Web Docs — developer.mozilla.org</a></div>
+      </div>
+      <div class="tool reveal" data-d="2">
+        <div class="tags"><span class="tag">後台</span></div>
+        <h3>Node.js（node:http，零相依）</h3>
+        <p><code>server.js</code> 提供靜態檔案與 REST API（<code>/api/products</code> CRUD），手刻 CSV 解析、cookie 工作階段，可讀寫 <code>data/products.csv</code>。</p>
+        <div class="src"><a href="https://nodejs.org/zh-tw" target="_blank" rel="noopener">Node.js 官方文件 — nodejs.org</a></div>
+      </div>
+      <div class="tool reveal" data-d="3">
+        <div class="tags"><span class="tag">字型</span></div>
+        <h3>Google Fonts</h3>
+        <p>Inter（西文/數字）+ Noto Sans TC（繁中），透過 CDN 載入，兼顧中英文排版一致性。</p>
+        <div class="src"><a href="https://fonts.google.com" target="_blank" rel="noopener">Google Fonts — fonts.google.com</a></div>
+      </div>
+      <div class="tool reveal" data-d="3">
+        <div class="tags"><span class="tag">資料</span></div>
+        <h3>CSV 作為真實來源</h3>
+        <p><code>data/products.csv</code>（59 項商品）與 <code>data/benchmarks.csv</code>（Time Spy 分數，以 <code>cpu_id+gpu_id</code> 為鍵）。瀏覽器 fetch 後在前端解析。</p>
+        <div class="src"><a href="https://datatracker.ietf.org/doc/html/rfc4180" target="_blank" rel="noopener">CSV 格式 RFC 4180</a></div>
+      </div>
+    </div>
+
+    <h3 class="reveal" style="margin-top:34px">標籤驅動的規格欄位</h3>
+    <p class="reveal">商品的硬規格藏在分號分隔的 <code>tags</code> 欄位裡，載入時用正規表示式抽出腳位、記憶體類型、TDP、尺寸——後台只要編輯標籤就能改規格，前端則只收到處理後的行為旗標（badge 文字、限制規則），<strong>絕不暴露原始 tag key</strong> 給使用者。</p>
+
+    <div class="tablewrap reveal">
+      <table>
+        <thead><tr><th>類別</th><th>關鍵欄位（由 tags 解析）</th></tr></thead>
+        <tbody>
+          <tr><td>CPU</td><td><code>Socket AM4/AM5/LGA1700</code>、<code>TDP / MAX TDP</code>、記憶體支援</td></tr>
+          <tr><td>主機板</td><td>socket、memory type、form factor（ATX / microATX / Mini-ITX / E-ATX）</td></tr>
+          <tr><td>顯示卡</td><td><code>Length cm</code>、TDP、電源接頭</td></tr>
+          <tr><td>機殼</td><td><code>Max GPU Length</code>、<code>Max Cooler Height</code>、支援的板型</td></tr>
+          <tr><td>電源</td><td><code>wattage</code>、模組化類型</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code reveal">
+      <div class="bar"><span class="lang">javascript · script.js</span><button class="copy" type="button">複製</button></div>
+<pre><code><span class="c-com">// 從分號分隔的 tags 解析硬規格（節錄）</span>
+<span class="c-kw">if</span> (tag.includes(<span class="c-str">"Socket AM4"</span>)) specs.sockets.push(<span class="c-str">"AM4"</span>);
+<span class="c-kw">if</span> (tag.includes(<span class="c-str">"Socket AM5"</span>)) specs.sockets.push(<span class="c-str">"AM5"</span>);
+<span class="c-kw">if</span> (tag.includes(<span class="c-str">"LGA1700"</span>)) specs.sockets.push(<span class="c-str">"LGA1700"</span>);
+<span class="c-kw">if</span> (normalized.includes(<span class="c-str">"DDR4/DDR5"</span>)) specs.memoryTypes.push(<span class="c-str">"DDR4"</span>, <span class="c-str">"DDR5"</span>);
+<span class="c-kw">else if</span> (normalized.includes(<span class="c-str">"DDR4"</span>)) specs.memoryTypes.push(<span class="c-str">"DDR4"</span>);
+<span class="c-kw">else if</span> (normalized.includes(<span class="c-str">"DDR5"</span>)) specs.memoryTypes.push(<span class="c-str">"DDR5"</span>);</code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- 04 -->
+<section id="s4" style="background:var(--surface)">
+  <div class="wrap">
+    <div class="eyebrow reveal"><span class="num">04</span> 實際運用的技能與外掛</div>
+    <h2 class="title reveal" data-d="1">是誰、用什麼工具做出來的</h2>
+    <p class="lead reveal" data-d="2">本專案在 <strong>Claude Code</strong> 的雲端遠端執行環境中協作完成。下面誠實列出真正用到的 AI 協作能力與專案技術，<strong>每張卡片都附官方出處連結</strong>；完整清單另見頁尾「出處 / 參考資料」。</p>
+
+    <div class="eyebrow reveal" style="margin-top:30px;color:var(--official)"><span class="num">A</span> AI 協作工具 · 技能與外掛</div>
+    <div class="grid">
+      <div class="tool reveal" data-d="1">
+        <div class="tags"><span class="tag official">官方</span></div>
+        <h3>Claude Code（遠端執行環境）</h3>
+        <p>在雲端容器中執行的 AI 代理 CLI：倉庫一開始就 clone 好，可讀寫檔案、跑指令、開 PR。本頁與 PCShop 即在此環境完成。</p>
+        <div class="src"><a href="https://code.claude.com/docs/en/claude-code-on-the-web" target="_blank" rel="noopener">Claude Code on the web 文件</a></div>
+      </div>
+      <div class="tool reveal" data-d="2">
+        <div class="tags"><span class="tag official">官方</span><span class="tag">工作流程</span></div>
+        <h3>Plan Mode（計畫模式）</h3>
+        <p>動手前先唯讀地探索、寫成計畫並請使用者核可，避免方向偏掉。本頁的需求釐清與引用規範就是在計畫模式中確認的。</p>
+        <div class="src"><a href="https://code.claude.com/docs" target="_blank" rel="noopener">Claude Code 文件</a></div>
+      </div>
+      <div class="tool reveal" data-d="1">
+        <div class="tags"><span class="tag official">官方</span></div>
+        <h3>Subagents（Explore / Plan 子代理）</h3>
+        <p>用 Explore 子代理平行掃描整個 PCShop 程式庫、用 Plan 子代理設計實作；主代理只收結論，省去逐檔翻閱。</p>
+        <div class="src"><a href="https://code.claude.com/docs/en/sub-agents" target="_blank" rel="noopener">Subagents 文件</a></div>
+      </div>
+      <div class="tool reveal" data-d="2">
+        <div class="tags"><span class="tag official">官方</span></div>
+        <h3>Skills（技能 / 斜線指令）</h3>
+        <p>可隨手叫用的專業流程：<code>code-review</code>、<code>simplify</code>、<code>verify</code>、<code>security-review</code>、<code>run</code> 等，用於審查、簡化、驗證與安全檢查。</p>
+        <div class="src"><a href="https://code.claude.com/docs/en/skills" target="_blank" rel="noopener">Agent Skills 文件</a></div>
+      </div>
+      <div class="tool reveal" data-d="1">
+        <div class="tags"><span class="tag third">外掛</span></div>
+        <h3>GitHub MCP Server</h3>
+        <p>透過 Model Context Protocol 連接 GitHub：查/開 PR、貼留言、看 CI、瀏覽倉庫——本專案的推送與 PR 流程即經由它完成。</p>
+        <div class="src"><a href="https://github.com/github/github-mcp-server" target="_blank" rel="noopener">github/github-mcp-server</a></div>
+      </div>
+      <div class="tool reveal" data-d="2">
+        <div class="tags"><span class="tag official">官方</span><span class="tag">設定</span></div>
+        <h3>Hooks &amp; Settings（自動化）</h3>
+        <p>用 <code>settings.json</code> 與 hooks 設定權限、環境變數與在特定事件自動執行的行為（例如 SessionStart 安裝相依、跑測試）。</p>
+        <div class="src"><a href="https://code.claude.com/docs/en/hooks" target="_blank" rel="noopener">Hooks 文件</a></div>
+      </div>
+    </div>
+
+    <div class="callout official reveal">
+      <strong>協定基礎：</strong>上述外掛能互通，靠的是開放的 <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener">Model Context Protocol（MCP）</a>——讓 AI 代理以統一介面接上外部工具與資料來源。
+    </div>
+
+    <div class="eyebrow reveal" style="margin-top:34px;color:var(--official)"><span class="num">B</span> 專案技術 · 部署平台</div>
+    <div class="grid">
+      <div class="tool reveal" data-d="1">
+        <div class="tags"><span class="tag third">平台</span></div>
+        <h3>GitHub Pages</h3>
+        <p>靜態託管整個倉庫根目錄，無建置步驟即可上線。</p>
+        <div class="src"><a href="https://docs.github.com/pages" target="_blank" rel="noopener">GitHub Pages 文件</a></div>
+      </div>
+      <div class="tool reveal" data-d="2">
+        <div class="tags"><span class="tag third">CI/CD</span></div>
+        <h3>GitHub Actions</h3>
+        <p><code>.github/workflows/pages.yml</code>：推送到 main 即自動部署。</p>
+        <div class="src"><a href="https://docs.github.com/actions" target="_blank" rel="noopener">GitHub Actions 文件</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 -->
+<section id="s5">
+  <div class="wrap">
+    <div class="eyebrow reveal"><span class="num">05</span> 溝通、調試與修正</div>
+    <h2 class="title reveal" data-d="1">把「相容性」做成可驗證的迴圈</h2>
+    <p class="lead reveal" data-d="2">調試的核心是 <code>checkBuild()</code>：每次加入零件都重新檢查整份配置，分出「硬衝突」（阻擋）與「軟警告」（提示不阻擋）。搭配瀏覽器 DevTools 觀察狀態、以驗收腳本回歸測試。</p>
+
+    <div class="code reveal">
+      <div class="bar"><span class="lang">javascript · script.js — checkBuild()</span><button class="copy" type="button">複製</button></div>
+<pre><code><span class="c-com">// 硬衝突：CPU 與主機板腳位必須相符，否則阻擋加入</span>
+<span class="c-kw">if</span> (cpu &amp;&amp; motherboard &amp;&amp; !<span class="c-fn">intersects</span>(cpu.specs.sockets, motherboard.specs.sockets)) {
+  hard.push({ categories: [<span class="c-str">"cpu"</span>, <span class="c-str">"motherboard"</span>],
+    message: <span class="c-str">`CPU 插槽 ${labelList(cpu.specs.sockets)} 與主機板 ${labelList(motherboard.specs.sockets)} 不相容。`</span> });
+}
+
+<span class="c-com">// 硬衝突：顯示卡長度不可超過機殼上限</span>
+<span class="c-kw">if</span> (gpu &amp;&amp; pcCase &amp;&amp; gpu.specs.lengthCm &gt; pcCase.specs.maxGpuLengthCm) {
+  hard.push({ categories: [<span class="c-str">"gpu"</span>, <span class="c-str">"case"</span>],
+    message: <span class="c-str">`顯示卡長度 ${gpu.specs.lengthCm}cm 超過機殼上限 ${pcCase.specs.maxGpuLengthCm}cm。`</span> });
+}</code></pre>
+    </div>
+
+    <div class="case reveal">
+      <div class="label">調試案例 A · 軟警告閾值</div>
+      <h3>電源瓦數要警告，但不該擋人</h3>
+      <p>新手常買剛好夠用的電源。我們不阻擋，只在 <code>CPU 峰值 TDP + GPU TDP + 150W 餘裕</code> 高於電源瓦數時亮黃燈，給出明確建議瓦數。</p>
+      <div class="code" style="margin-top:12px">
+        <div class="bar"><span class="lang">javascript · 軟警告</span><button class="copy" type="button">複製</button></div>
+<pre><code><span class="c-kw">const</span> requiredWattage = (cpu.specs.peakTdp || cpu.specs.tdp || 0) + (gpu.specs.tdp || 0) + <span class="c-str">150</span>;
+<span class="c-kw">if</span> (psu.specs.wattage &amp;&amp; psu.specs.wattage &lt; requiredWattage) {
+  soft.push({ categories: [<span class="c-str">"psu"</span>],
+    message: <span class="c-str">`建議電源至少 ${requiredWattage}W，目前為 ${psu.specs.wattage}W。`</span> });
+}</code></pre>
+      </div>
+    </div>
+
+    <div class="ba reveal">
+      <div class="label" style="font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700">調試案例 B · 寫 CSV 不能寫壞</div>
+      <h3 style="font-family:var(--sans);font-size:1.05rem;margin:6px 0 12px">後台存檔的「原子寫入」</h3>
+      <div class="toggle" role="group" aria-label="切換修正前後">
+        <button type="button" data-tab="before" aria-pressed="true">修正前</button>
+        <button type="button" data-tab="after" aria-pressed="false">修正後</button>
+      </div>
+      <div class="panel show" data-panel="before">
+        <div class="code" style="margin:0">
+          <div class="bar"><span class="lang">直接覆寫——中途失敗就毀檔</span></div>
+<pre><code><span class="c-com">// ⚠ 寫到一半若中斷，products.csv 會殘缺</span>
+<span class="c-kw">await</span> fs.<span class="c-fn">writeFile</span>(PRODUCTS_PATH, csv, <span class="c-str">"utf8"</span>);</code></pre>
+        </div>
+        <div class="verdict bad">✗ 風險：行程中斷或併發寫入會讓商品資料毀損</div>
+      </div>
+      <div class="panel" data-panel="after">
+        <div class="code" style="margin:0">
+          <div class="bar"><span class="lang">先寫暫存檔，再原子改名</span></div>
+<pre><code><span class="c-kw">const</span> tempPath = <span class="c-str">`${PRODUCTS_PATH}.tmp`</span>;
+<span class="c-kw">await</span> fs.<span class="c-fn">writeFile</span>(tempPath, csv, <span class="c-str">"utf8"</span>);
+<span class="c-kw">await</span> fs.<span class="c-fn">rename</span>(tempPath, PRODUCTS_PATH); <span class="c-com">// 原子操作</span></code></pre>
+        </div>
+        <div class="verdict ok">✓ 改名是原子操作：要嘛舊檔、要嘛新檔，永遠不會有半截檔</div>
+      </div>
+    </div>
+
+    <div class="case reveal">
+      <div class="label">調試案例 C · 用驗收腳本回歸</div>
+      <h3>用真實情境當測試</h3>
+      <p>每次改動都跑這幾個情境（取自教學計畫的驗收章節）：</p>
+      <ul>
+        <li>給預算 25K、要能玩《英雄聯盟》＋文書，觀察新手能否獨力完成且不選到不相容組合。</li>
+        <li>店家試用：在後台新增「RTX 5060」並設定庫存價格、把某品標記為「限組裝」。</li>
+        <li>相容性涵蓋率：檢查十大常見衝突（如 Intel 12 代 + DDR5 主機板卻配 DDR4）是否都被擋下。</li>
+      </ul>
+    </div>
+
+    <div class="callout reveal">
+      <strong>調試心法：</strong>讓錯誤「會說話」。硬衝突回傳明確訊息與建議替代品；軟警告用黃底提示而非阻擋；後台即時顯示存檔狀態。錯誤訊息本身就是最好的除錯工具。
+    </div>
+  </div>
+</section>
+
+<!-- 06 -->
+<section id="s6" class="finale">
+  <div class="wrap">
+    <div class="eyebrow reveal" style="color:var(--primary)"><span class="num">06</span> 推送與部署</div>
+    <h2 class="title reveal" data-d="1">推上 GitHub，自動上線</h2>
+    <p class="lead reveal" data-d="2">最後一步：本地預覽確認無誤，提交並推送到 GitHub，Actions 會自動把網站部署到 GitHub Pages。</p>
+
+    <div class="code reveal" data-d="1">
+      <div class="bar"><span class="lang">bash · 本地預覽</span><button class="copy" type="button">複製</button></div>
+<pre><code><span class="c-com"># 純靜態預覽（前端載入 CSV、前端做過濾與衝突檢查）</span>
+python3 -m http.server 8000
+<span class="c-com"># 或啟動含後台 API 的 Node 伺服器</span>
+node server.js</code></pre>
+    </div>
+
+    <div class="code reveal" data-d="2">
+      <div class="bar"><span class="lang">bash · 提交並推送</span><button class="copy" type="button">複製</button></div>
+<pre><code>git add .
+git commit -m <span class="c-str">"docs: add making-of guide"</span>
+git push -u origin main</code></pre>
+    </div>
+
+    <p class="reveal">推送後，<code>.github/workflows/pages.yml</code> 會自動觸發，把整個倉庫部署到 GitHub Pages，幾分鐘後即可在 <code>https://&lt;帳號&gt;.github.io/&lt;倉庫&gt;/</code> 看到成果。
+
+    <ul class="checklist reveal">
+      <li><span class="ck">✓</span><span>痛點轉化為「行動優先、保護式引導」的明確需求</span></li>
+      <li><span class="ck">✓</span><span>用 PRODUCT.md / 規格書.txt 把概念釘成可執行規格</span></li>
+      <li><span class="ck">✓</span><span>相容性做成可配置約束表，而非寫死的邏輯</span></li>
+      <li><span class="ck">✓</span><span>借助 Claude Code 的計畫模式、子代理、技能與 GitHub MCP 完成</span></li>
+      <li><span class="ck">✓</span><span>推上 GitHub，由 Actions 自動部署到 Pages</span></li>
+    </ul>
+
+    <div class="pull reveal">「文件即設計」——把一句模糊的抱怨，<span class="hl">一層層拆成可實作、可維護、對新手有保護力</span>的商業工具。
+    </div>
+
+    <div class="cta reveal">
+      <a class="btn primary" href="https://vik1n9.github.io/PCShop/" target="_blank" rel="noopener">看 PCShop 線上版 →</a>
+      <a class="btn ghost" href="#refs">查看完整出處</a>
+    </div>
+  </div>
+</section>
+
+<!-- REFERENCES -->
+<section id="refs" class="refs">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">＊</span> 出處 / 參考資料</div>
+    <h2 class="title">所有工具與引用來源</h2>
+    <p class="lead">本頁提到的每一項技能、外掛、技術與參考資料，集中列於此，皆為可點擊連結，方便你延伸查詢。</p>
+
+    <div class="group">AI 協作工具 · 技能與外掛</div>
+    <ol>
+      <li>Claude Code 官方文件 — <a href="https://code.claude.com/docs" target="_blank" rel="noopener">code.claude.com/docs</a></li>
+      <li>Claude Code on the web（遠端執行環境） — <a href="https://code.claude.com/docs/en/claude-code-on-the-web" target="_blank" rel="noopener">code.claude.com/docs/en/claude-code-on-the-web</a></li>
+      <li>Subagents（子代理：Explore / Plan） — <a href="https://code.claude.com/docs/en/sub-agents" target="_blank" rel="noopener">code.claude.com/docs/en/sub-agents</a></li>
+      <li>Agent Skills（技能 / 斜線指令） — <a href="https://code.claude.com/docs/en/skills" target="_blank" rel="noopener">code.claude.com/docs/en/skills</a></li>
+      <li>Hooks（自動化掛鉤） — <a href="https://code.claude.com/docs/en/hooks" target="_blank" rel="noopener">code.claude.com/docs/en/hooks</a></li>
+      <li>GitHub MCP Server（外掛） — <a href="https://github.com/github/github-mcp-server" target="_blank" rel="noopener">github.com/github/github-mcp-server</a></li>
+      <li>Model Context Protocol（MCP 協定） — <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener">modelcontextprotocol.io</a></li>
+    </ol>
+
+    <div class="group">專案技術 · 平台</div>
+    <ol>
+      <li>Node.js 官方文件 — <a href="https://nodejs.org/zh-tw" target="_blank" rel="noopener">nodejs.org</a></li>
+      <li>MDN Web Docs（HTML/CSS/JS） — <a href="https://developer.mozilla.org/zh-TW/docs/Web" target="_blank" rel="noopener">developer.mozilla.org</a></li>
+      <li>Google Fonts（Inter / Noto Sans TC） — <a href="https://fonts.google.com" target="_blank" rel="noopener">fonts.google.com</a></li>
+      <li>GitHub Pages 文件 — <a href="https://docs.github.com/pages" target="_blank" rel="noopener">docs.github.com/pages</a></li>
+      <li>GitHub Actions 文件 — <a href="https://docs.github.com/actions" target="_blank" rel="noopener">docs.github.com/actions</a></li>
+      <li>CSV 格式 RFC 4180 — <a href="https://datatracker.ietf.org/doc/html/rfc4180" target="_blank" rel="noopener">datatracker.ietf.org/doc/html/rfc4180</a></li>
+    </ol>
+
+    <div class="group">專案本身 · 文件與成品</div>
+    <ol>
+      <li>版面與寫法參考頁（製作幕後 making-of） — <a href="https://vik1n9.github.io/One-Page-Beginners-Guide/making-of.html" target="_blank" rel="noopener">vik1n9.github.io/One-Page-Beginners-Guide/making-of.html</a></li>
+      <li>PCShop 線上版 — <a href="https://vik1n9.github.io/PCShop/" target="_blank" rel="noopener">vik1n9.github.io/PCShop</a></li>
+      <li>專案文件：<code>PRODUCT.md</code>（產品概念，v1.5）、<code>規格書.txt</code>（技術規格，v3.2）、<code>README.md</code>（上手與後台）、<code>AGENTS.md</code>（協作維護守則）。</li>
+    </ol>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="note">本頁為 PCShop 專案的「製作幕後」教學，記錄真實的製作過程、實際運用的技能與外掛，以及調試方法。文中所有工具與引用來源皆附出處連結（見上方「出處 / 參考資料」）。AI 協作部分由 Claude Code 完成。</p>
+    <div>
+      <div>出版日期：2026/06/09</div>
+      <div>專案：PCShop · One-Page Beginners Guide</div>
+      <div><a href="https://github.com/Vik1n9/One-Page-Beginners-Guide" target="_blank" rel="noopener">GitHub 倉庫 ↗</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Progress bar
+  const progress = document.getElementById('progress');
+  const onScroll = () => {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    progress.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+  };
+  document.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+  // Copy buttons
+  document.querySelectorAll('.code .copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const code = btn.closest('.code').querySelector('code');
+      const text = code ? code.innerText : '';
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (_) {
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+      }
+      const old = btn.textContent; btn.textContent = '已複製 ✓';
+      setTimeout(() => { btn.textContent = old; }, 1400);
+    });
+  });
+
+  // Before / after toggles
+  document.querySelectorAll('.ba').forEach((ba) => {
+    const buttons = ba.querySelectorAll('.toggle button');
+    buttons.forEach((b) => {
+      b.addEventListener('click', () => {
+        const tab = b.dataset.tab;
+        buttons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        ba.querySelectorAll('.panel').forEach((p) => {
+          p.classList.toggle('show', p.dataset.panel === tab);
+        });
+      });
+    });
+  });
+</script>
+</body>
+</html>
